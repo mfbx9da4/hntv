@@ -7,6 +7,18 @@ import TimeAgo from 'react-timeago'
 import day from 'dayjs'
 import Youtube from './Youtube'
 
+function sumoEmail() {
+  ;(function(s, u, m, o, j, v) {
+    j = u.createElement(m)
+    v = u.getElementsByTagName(m)[0]
+    j.async = 1
+    j.src = o
+    j.dataset.sumoSiteId =
+      'bfde1ff840e98cd64e99636c66731caa78e184c7d4638180c1ff6e406d6ca105'
+    v.parentNode.insertBefore(j, v)
+  })(window, document, 'script', '//load.sumo.com/')
+}
+
 function endOfToday() {
   return day()
     .add(1, 'day')
@@ -36,6 +48,7 @@ export default class Feed extends Component {
   async componentDidMount() {
     window.addEventListener('scroll', this.onScroll)
     await this.loadPage()
+    sumoEmail()
   }
 
   componentWillUnmount() {
@@ -142,9 +155,10 @@ export default class Feed extends Component {
     )
   }
 
-  async randomFortnight(random = Math.random()) {
-    const FIRST_POST_DATE = '2006-10-09T18:21:51.000Z'
-    const totalDaysHNActive = day().diff(day(FIRST_POST_DATE), 'day')
+  async randomFortnight(random) {
+    random = random || Math.random()
+    const FIRST_HN_POST_DATE = '2006-10-09T18:21:51.000Z'
+    const totalDaysHNActive = day().diff(day(FIRST_HN_POST_DATE), 'day')
     const daysAgo = Math.floor(random * (totalDaysHNActive / 15)) * 15
     var beginNextMonth = day()
       .add(1, 'month')
