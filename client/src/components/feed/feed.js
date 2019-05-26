@@ -101,9 +101,9 @@ export default class Feed extends Component {
 
   onError = (index, id) => (e) => {
     console.log('onError', index, id)
-    this.setState({
-      brokenVideos: { ...this.state.brokenVideos, [id]: true },
-    })
+    const brokenVideos = { ...this.state.brokenVideos, [id]: true }
+    const results = this.state.results.filter(x => !(x.objectID in brokenVideos))
+    this.setState({ brokenVideos, results })
   }
 
   async componentDidUpdate(prev) {
