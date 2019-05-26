@@ -1,0 +1,61 @@
+:root {
+	--red0: #fbe5e2;
+	--red1: #f29f97;
+	--red2: #e74c3c;
+	--red3: #c72918;
+	--red4: #6c160d;
+	--red5: #3f0d08;
+
+	--green0: #f8fdfa;
+	--green1: #97e8b9;
+	--green2: #52d88b;
+	--green3: #2dca6f;
+	--green4: #27ae60;
+	--green5: #1e8449;
+	--green6: #145b32;
+	--green7: #114d2a;
+	--green8: #082313;
+
+	--grey0: #f6f6f6;
+	--grey1: #e5e5e5;
+	--grey2: #d4d4d4;
+	--grey3: #bbb;
+	--grey4: #999;
+	--grey5: #6e6e6e;
+	--grey6: #5d5d5d;
+	--grey7: #444;
+	--grey8: #222;
+	--grey9: #111;
+	--font-color-default: var(--grey7);
+
+	--space1: 2px;
+	--space2: 6px;
+	--space3: 8px;
+	--space4: 12px;
+	--space5: 16px;
+	--space6: 20px;
+	--space7: 24px;
+	--space8: 32px;
+	--space9: 40px;
+}
+
+html,
+body {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background: var(--grey0);
+	font-family: 'Helvetica Neue', arial, sans-serif;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+#app {
+	height: 100%;
+}
