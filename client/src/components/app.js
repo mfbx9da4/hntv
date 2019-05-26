@@ -27,6 +27,7 @@ export default class App extends Component {
           <Home path='/fortnight' />
           <Home path='/month' />
           <Home path='/random' />
+          <Home default />
         </Router>
       </div>
     )

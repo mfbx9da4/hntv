@@ -1,10 +1,18 @@
 {
   "hosting": {
     "public": "build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        // Serves index.html for requests to files or directories that do not exist
+        "source": "**",
+        "destination": "/index.html"
+      },
+      {
+        // Excludes specified pathways from rewrites
+        "source": "!/@(js|css)/**",
+        "destination": "/index.html"
+      }
     ]
   }
 }

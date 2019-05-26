@@ -8,6 +8,7 @@ import day from 'dayjs'
 import Youtube from './Youtube'
 
 function sumoEmail() {
+  if (window.location.href.indexOf('localhost') > -1) return
   ;(function(s, u, m, o, j, v) {
     j = u.createElement(m)
     v = u.getElementsByTagName(m)[0]
@@ -56,20 +57,20 @@ export default class Feed extends Component {
   }
 
   onScroll = () => {
-    const isLastVideoInViewport =
-      this.lastVideoContainerRef &&
-      this.lastVideoContainerRef.getBoundingClientRect().y <
-        window.innerHeight &&
-      this.state.prevScrollElementId !== this.lastVideoContainerRef.id
-    if (isLastVideoInViewport && !this.state.reachedEndOfPages) {
-      console.log('Infinite Scroll Load Next')
-      this.setState(
-        {
-          page: this.state.page + 1,
-          prevScrollElementId: this.lastVideoContainerRef.id,
-        },
-        this.loadPage
-      )
+    if (this.lastVideoContainerRef) {
+      const isLastVideoInViewport =
+        this.lastVideoContainerRef.getBoundingClientRect().y <
+        window.innerHeight
+      if (isLastVideoInViewport && !this.state.reachedEndOfPages) {
+        console.log('Infinite Scroll Load Next')
+        this.setState(
+          {
+            page: this.state.page + 1,
+            prevScrollElementId: this.lastVideoContainerRef.id,
+          },
+          this.loadPage
+        )
+      }
     }
   }
 
@@ -253,11 +254,6 @@ export default class Feed extends Component {
               <div style={{ marginBottom: '40px' }}>
                 <div
                   id={`video-container${x.objectID}`}
-                  ref={(ref) => {
-                    if (i === this.state.results.length - 1) {
-                      this.lastVideoContainerRef = ref
-                    }
-                  }}
                   className='video'
                   style={{
                     position: 'relative',
@@ -305,6 +301,15 @@ export default class Feed extends Component {
             )
           )}
         </div>
+        <div
+          style='margin-top: 300px'
+          ref={(ref) => {
+            if (ref && ref !== this.lastVideoContainerRef) {
+              console.log('set last', ref)
+              this.lastVideoContainerRef = ref
+            }
+          }}
+        />
       </div>
     )
   }
