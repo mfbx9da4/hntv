@@ -3,9 +3,8 @@ import { getVideos } from '../../services/api'
 import Loader from '../Loader'
 import Info from '../Info'
 import style from './style'
-import TimeAgo from 'react-timeago'
 import day from 'dayjs'
-import Youtube from './Youtube'
+import Item from '../item'
 
 function sumoEmail() {
   if (window.location.href.indexOf('localhost') > -1) return
@@ -33,26 +32,28 @@ export default class Feed extends Component {
   constructor() {
     super()
     let initialData = (typeof window !== 'undefined' && window.__DATA__) || {}
-    let results = initialData.results || []
+    let videoOrder = initialData.videoOrder || []
+    let videos = initialData.videos || {}
     this.state = {
-      results,
+      videoOrder,
       loading: null,
       page: 0,
       lastEndPage: 0,
       error: { message: null, details: null },
+      videos,
       brokenVideos: {},
       youtubeIdSet: {},
-      imageIndex: 0
+      imageIndex: 0,
     }
-    this.players = []
+    this.currentPlayer = { pauseVideo: () => {} }
   }
 
   updateImageIndex = () => {
-    this.setState({imageIndex: (this.state.imageIndex + 1) % 4})
+    this.setState({ imageIndex: (this.state.imageIndex + 1) % 4 })
   }
 
   resetImageIndex = () => {
-    this.setState({imageIndex: 0})
+    this.setState({ imageIndex: 0 })
   }
 
   async componentDidMount() {
@@ -83,44 +84,37 @@ export default class Feed extends Component {
     }
   }
 
-  onPageLoaded = () => {
-    // this.state.results.map((item, i) => this.initPlayer(i, item.objectID))
-    // this.initPlayer(0, this.state.results[0].objectID)
-  }
-
-  initPlayer = (index, id) => {
-    console.log('initPlayer', index, id)
-    if (!index && !id) {
-      return
-    }
-    window.player = new window.YT.Player(`player${id}`, {
-      events: {},
-    })
-  }
-
   onReady = (index, id) => (e) => {
     console.log('onready', index, id)
-    e.target.playVideo()
-    if (index !== 0) {
-      // console.log('index', index, id)
-      setTimeout(() => e.target.pauseVideo(), 10)
-    }
-    this.setState({ firstVideoLoaded: true })
+    this.currentPlayer.pauseVideo()
+    this.currentPlayer = e.target.playVideo()
+    return this.setState({ firstVideoLoaded: true })
   }
 
   onError = (index, id) => (e) => {
     console.log('onError', index, id)
     const brokenVideos = { ...this.state.brokenVideos, [id]: true }
-    const results = this.state.results.filter(x => !(x.objectID in brokenVideos))
-    this.setState({ brokenVideos, results })
+    const videoOrder = this.state.videoOrder.filter(
+      (x) => !(x.objectID in brokenVideos)
+    )
+    this.setState({ brokenVideos, videoOrder })
+  }
+
+  resetAndLoadFirstPage = () => {
+    this.setState(
+      {
+        page: 0,
+        youtubeIdSet: {},
+        videoOrder: [],
+        lastVideoContainerRef: null,
+      },
+      this.loadPage
+    )
   }
 
   async componentDidUpdate(prev) {
     if (this.props.url !== prev.url) {
-      this.setState(
-        { page: 0, youtubeIdSet: {}, results: [], lastVideoContainerRef: null },
-        this.loadPage
-      )
+      this.resetAndLoadFirstPage()
     }
   }
 
@@ -185,7 +179,8 @@ export default class Feed extends Component {
       end: end.format('DD MMM YYYY'),
     }
     if (page === 0) {
-      newState.results = []
+      newState.videoOrder = []
+      newState.videos = {}
     }
     this.setState(newState, async () => {
       let res
@@ -212,8 +207,9 @@ export default class Feed extends Component {
         })
       }
 
-      const _results = []
+      const _videoOrder = []
       const youtubeIdSet = {}
+      const videos = {}
       for (let item of data.hits) {
         let youtubeId = item.url.split('v=')[1].split('&')[0]
         item.youtubeId = youtubeId
@@ -221,17 +217,20 @@ export default class Feed extends Component {
           !(youtubeId in this.state.youtubeIdSet) &&
           !(youtubeId in youtubeIdSet)
         ) {
-          _results.push(item)
+          _videoOrder.push(item.objectID)
+          videos[item.objectID] = item
           youtubeIdSet[youtubeId] = true
         }
       }
 
       console.log('gotdata', page, start.format('DD MMM'), end.format('DD MMM'))
-      const results = page < 1 ? _results : this.state.results.concat(_results)
+      const videoOrder =
+        page < 1 ? _videoOrder : this.state.videoOrder.concat(_videoOrder)
       this.setState(
         {
           loading: null,
-          results,
+          videoOrder,
+          videos: { ...this.state.videos, ...videos },
           youtubeIdSet: { ...this.state.youtubeIdSet, ...youtubeIdSet },
           reachedEndOfPages: !data.hits.length,
         },
@@ -249,7 +248,7 @@ export default class Feed extends Component {
             message={this.state.error.message}
             details={this.state.error.details}
           />
-          {!this.state.results.length && !this.state.loading && (
+          {!this.state.videoOrder.length && !this.state.loading && (
             <Info message={'No Videos for this period'} />
           )}
           <div style='text-align: center; padding-top: 10px;'>
@@ -258,66 +257,23 @@ export default class Feed extends Component {
           </div>
         </div>
         <div className={style.searchContainer}>
-          {this.state.results.map((x, i) =>
-            x.objectID in this.state.brokenVideos ? null : (
-              <div style={{ marginBottom: '40px' }}>
-                {/* <div onMouseOver={this.updateImageIndex} onMouseLeave={this.resetImageIndex}>
-                  <img width={400} height={400 * (3 / 4)} src={`https://img.youtube.com/vi/${x.youtubeId}/${this.state.imageIndex}.jpg`} />
-                </div> */}
-                <div
-                  id={`video-container${x.objectID}`}
-                  className='video'
-                  style={{
-                    position: 'relative',
-                    paddingBottom: '56.25%' /* 16:9 */,
-                    paddingTop: 25,
-                    height: 0,
-                    background: '#333',
-                  }}
-                >
-                  {i === 0 || this.state.firstVideoLoaded ? (
-                    <Youtube
-                      id={`player${x.objectID}`}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                      }}
-                      className={style.iframe}
-                      videoId={x.youtubeId}
-                      onReady={this.onReady(i, x.objectID)}
-                      onError={this.onError(i, x.objectID)}
-                      // opts={{ playerVars: { autoplay: i === 0 ? 1 : 0 } }}
-                    />
-                  ) : null}
-                </div>
-                <div>
-                  <div>{x.points} points</div>
-                  <div>{x.title}</div>
-                  <a target='_blank' href={x.url}>
-                    Youtube
-                  </a>{' '}
-                  <a
-                    target='_blank'
-                    href={`https://news.ycombinator.com/item?id=${x.objectID}`}
-                  >
-                    HN
-                  </a>
-                </div>
-                <TimeAgo date={x.created_at} />
-                <div>{day(x.created_at).format('ddd DD MMM YYYY')}</div>
-                {/* <div>{JSON.stringify(x, null, 2)}</div> */}
+          {this.state.videoOrder.map((objectID, i) => {
+            const x = this.state.videos[objectID]
+            return x.objectID in this.state.brokenVideos ? null : (
+              <div key={x.objectID} style={{ marginBottom: '40px' }}>
+                <Item
+                  item={x}
+                  onError={this.onError(i, x.objectID)}
+                  onReady={this.onReady(i, x.objectID)}
+                />
               </div>
             )
-          )}
+          })}
         </div>
         <div
           style='margin-top: 300px'
           ref={(ref) => {
             if (ref && ref !== this.lastVideoContainerRef) {
-              console.log('set last', ref)
               this.lastVideoContainerRef = ref
             }
           }}
