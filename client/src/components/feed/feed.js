@@ -48,14 +48,6 @@ export default class Feed extends Component {
     this.currentPlayer = { pauseVideo: () => {} }
   }
 
-  updateImageIndex = () => {
-    this.setState({ imageIndex: (this.state.imageIndex + 1) % 4 })
-  }
-
-  resetImageIndex = () => {
-    this.setState({ imageIndex: 0 })
-  }
-
   async componentDidMount() {
     window.addEventListener('scroll', this.onScroll)
     await this.loadPage()
@@ -72,7 +64,6 @@ export default class Feed extends Component {
         this.lastVideoContainerRef.getBoundingClientRect().y <
         window.innerHeight
       if (isLastVideoInViewport && !this.state.reachedEndOfPages) {
-        console.log('Infinite Scroll Load Next')
         this.setState(
           {
             page: this.state.page + 1,
@@ -85,14 +76,12 @@ export default class Feed extends Component {
   }
 
   onReady = (index, id) => (e) => {
-    console.log('onready', index, id)
     this.currentPlayer.pauseVideo()
     this.currentPlayer = e.target.playVideo()
     return this.setState({ firstVideoLoaded: true })
   }
 
   onError = (index, id) => (e) => {
-    console.log('onError', index, id)
     const brokenVideos = { ...this.state.brokenVideos, [id]: true }
     const videoOrder = this.state.videoOrder.filter(
       (x) => !(x.objectID in brokenVideos)
@@ -101,6 +90,7 @@ export default class Feed extends Component {
   }
 
   resetAndLoadFirstPage = () => {
+    this.currentPlayer = { pauseVideo: () => {} }
     this.setState(
       {
         page: 0,
@@ -223,7 +213,6 @@ export default class Feed extends Component {
         }
       }
 
-      console.log('gotdata', page, start.format('DD MMM'), end.format('DD MMM'))
       const videoOrder =
         page < 1 ? _videoOrder : this.state.videoOrder.concat(_videoOrder)
       this.setState(
@@ -262,6 +251,7 @@ export default class Feed extends Component {
             return x.objectID in this.state.brokenVideos ? null : (
               <div key={x.objectID} style={{ marginBottom: '40px' }}>
                 <Item
+                  showPlayer={i === 0}
                   item={x}
                   onError={this.onError(i, x.objectID)}
                   onReady={this.onReady(i, x.objectID)}

@@ -16,6 +16,10 @@ export default class Item extends Component {
     this.state = { showPlayer: false, imageIndex: 0 }
   }
 
+  componentDidMount() {
+    if (this.props.showPlayer) this.setState({ showPlayer: true })
+  }
+
   onImageError = (e) => this.props.onError()
 
   render({ item }) {
