@@ -4,6 +4,9 @@
   flex-direction: column;
   justify-content: space-between;
   position: relative;
+  a {
+    color: hsl(45, 89, 69);
+  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -18,35 +21,6 @@
   margin-right: auto;
   margin-left: auto;
   max-width: 400px;
-}
-
-.searchControls {
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--space5);
-
-  button {
-    font-size: var(--space5);
-    border: 0;
-    border-radius: var(--space2);
-    padding: var(--space6);
-    margin: var(--space5) var(--space5);
-    background: var(--green4);
-    border: 1px solid var(--green4);
-    color: white;
-    &:hover {
-      background: var(--green3);
-    }
-  }
-}
-
-.searchInput {
-  flex: 1;
-  font-size: var(--space5);
-  border-radius: var(--space2);
-  border: 1px solid var(--grey2);
-  padding: var(--space5);
-  max-height: 40px;
 }
 
 .searchDisplay {

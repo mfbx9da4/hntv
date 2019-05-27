@@ -42,8 +42,17 @@ export default class Feed extends Component {
       error: { message: null, details: null },
       brokenVideos: {},
       youtubeIdSet: {},
+      imageIndex: 0
     }
     this.players = []
+  }
+
+  updateImageIndex = () => {
+    this.setState({imageIndex: (this.state.imageIndex + 1) % 4})
+  }
+
+  resetImageIndex = () => {
+    this.setState({imageIndex: 0})
   }
 
   async componentDidMount() {
@@ -252,6 +261,9 @@ export default class Feed extends Component {
           {this.state.results.map((x, i) =>
             x.objectID in this.state.brokenVideos ? null : (
               <div style={{ marginBottom: '40px' }}>
+                {/* <div onMouseOver={this.updateImageIndex} onMouseLeave={this.resetImageIndex}>
+                  <img width={400} height={400 * (3 / 4)} src={`https://img.youtube.com/vi/${x.youtubeId}/${this.state.imageIndex}.jpg`} />
+                </div> */}
                 <div
                   id={`video-container${x.objectID}`}
                   className='video'
