@@ -1401,6 +1401,8 @@ var Header_Header = function (_Component) {
 
 /* harmony default export */ var header = (Header_Header);
 // CONCATENATED MODULE: ./services/api.js
+// TODO: separate local and production keys
+var GOOGLE_API_KEY = 'AIzaSyDf6h_YZh_ltaj8u8H4TceEqet68CyCz6k';
 var ALGOLIA_URL = 'https://hn.algolia.com/api/v1/search';
 
 function getVideos(start, end, page) {
@@ -1422,6 +1424,16 @@ function getVideos(start, end, page) {
         return $error($boundEx);
       }
     }, $error);
+  });
+}
+
+function getVideoInfo(id) {
+  return new Promise(function ($return, $error) {
+    var base = 'https://www.googleapis.com/youtube/v3/videos?id=' + id;
+    var content = '&part=contentDetails';
+    var key = '&key=' + GOOGLE_API_KEY;
+    var url = '' + base + content + key;
+    return $return(fetch(url));
   });
 }
 // EXTERNAL MODULE: ./components/Loader/style.scss
@@ -1999,6 +2011,12 @@ var item_Item = (item__temp = item__class = function (_Component) {
       return _this.props.onError();
     };
 
+    _this.formatDuration = function (duration) {
+      if (!duration) return '';
+      var out = duration.toString();
+      return out.replace('PT', '').toLowerCase();
+    };
+
     _this.state = {
       showPlayer: false,
       imageIndex: 0,
@@ -2009,6 +2027,12 @@ var item_Item = (item__temp = item__class = function (_Component) {
 
   Item.prototype.componentDidMount = function componentDidMount() {
     if (this.props.showPlayer) this.setState({ showPlayer: true });
+  };
+
+  Item.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
+    if (props.showPlayer !== this.props.showPlayer && props.showPlayer !== this.state.showPlayer) {
+      this.setState({ showPlayer: props.showPlayer });
+    }
   };
 
   Item.prototype.render = function render(_ref) {
@@ -2074,6 +2098,11 @@ var item_Item = (item__temp = item__class = function (_Component) {
           null,
           item.title
         ),
+        item.contentDetails && Object(preact_min["h"])(
+          'div',
+          null,
+          this.formatDuration(item.contentDetails.duration)
+        ),
         Object(preact_min["h"])(
           'a',
           { target: '_blank', href: item.url },
@@ -2129,6 +2158,32 @@ function Feed__inherits(subClass, superClass) { if (typeof superClass !== "funct
 
 
 
+// Straight from SO 😭
+function getUrlQueryParameters(url) {
+  var question = url.indexOf("?");
+  var hash = url.indexOf("#");
+  if (hash == -1 && question == -1) return {};
+  if (hash == -1) hash = url.length;
+  var query = question == -1 || hash == question + 1 ? url.substring(hash) : url.substring(question + 1, hash);
+  var result = {};
+  query.split("&").forEach(function (part) {
+    if (!part) return;
+    part = part.split("+").join(" "); // replace every + with space, regexp-free version
+    var eq = part.indexOf("=");
+    var key = eq > -1 ? part.substr(0, eq) : part;
+    var val = eq > -1 ? decodeURIComponent(part.substr(eq + 1)) : "";
+    var from = key.indexOf("[");
+    if (from == -1) result[decodeURIComponent(key)] = val;else {
+      var to = key.indexOf("]", from);
+      var index = decodeURIComponent(key.substring(from + 1, to));
+      key = decodeURIComponent(key.substring(0, from));
+      if (!result[key]) result[key] = [];
+      if (!index) result[key].push(val);else result[key][index] = val;
+    }
+  });
+  return result;
+}
+
 function sumoEmail() {
   if (window.location.href.indexOf('localhost') > -1) return;(function (s, u, m, o, j, v) {
     j = u.createElement(m);
@@ -2167,7 +2222,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
       error: { message: null, details: null },
       videos: videos,
       brokenVideos: {},
-      youtubeIdSet: {},
+      youtubeIDToObjectID: {},
       imageIndex: 0
     };
     _this.currentPlayer = { pauseVideo: function pauseVideo() {} };
@@ -2402,7 +2457,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
     _this3.currentPlayer = { pauseVideo: function pauseVideo() {} };
     _this3.setState({
       page: 0,
-      youtubeIdSet: {},
+      youtubeIDToObjectID: {},
       videoOrder: [],
       lastVideoContainerRef: null
     }, _this3.loadPage);
@@ -2421,7 +2476,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
       }
       _this3.setState(newState, function () {
         return new Promise(function ($return, $error) {
-          var res, data, _videoOrder, youtubeIdSet, videos, _iterator, _isArray, _i, _ref3, item, youtubeId, videoOrder;
+          var res, data, _videoOrder, youtubeIDToObjectID, videos, _iterator, _isArray, _i, _ref3, item, youtubeId, videoOrder;
 
           res = void 0;
           var $Try_1_Post = function () {
@@ -2441,7 +2496,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
                   }
 
                   _videoOrder = [];
-                  youtubeIdSet = {};
+                  youtubeIDToObjectID = {};
                   videos = {};
                   for (_iterator = data.hits, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
                     if (_isArray) {
@@ -2455,12 +2510,12 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
 
                     item = _ref3;
 
-                    youtubeId = item.url.split('v=')[1].split('&')[0];
+                    youtubeId = getUrlQueryParameters(item.url).v;
                     item.youtubeId = youtubeId;
-                    if (!(youtubeId in _this3.state.youtubeIdSet) && !(youtubeId in youtubeIdSet)) {
+                    if (!(youtubeId in _this3.state.youtubeIDToObjectID) && !(youtubeId in youtubeIDToObjectID)) {
                       _videoOrder.push(item.objectID);
                       videos[item.objectID] = item;
-                      youtubeIdSet[youtubeId] = true;
+                      youtubeIDToObjectID[youtubeId] = item.objectID;
                     }
                   }
 
@@ -2469,10 +2524,16 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
                     loading: null,
                     videoOrder: videoOrder,
                     videos: Feed__extends({}, _this3.state.videos, videos),
-                    youtubeIdSet: Feed__extends({}, _this3.state.youtubeIdSet, youtubeIdSet),
+                    youtubeIDToObjectID: Feed__extends({}, _this3.state.youtubeIDToObjectID, youtubeIDToObjectID),
                     reachedEndOfPages: !data.hits.length
                   }, _this3.onPageLoaded);
-                  return $return();
+                  return Promise.resolve(_this3.getVideoInfo(Object.keys(youtubeIDToObjectID))).then(function ($await_13) {
+                    try {
+                      return $return();
+                    } catch ($boundEx) {
+                      return $error($boundEx);
+                    }
+                  }, $error);
                 } catch ($boundEx) {
                   return $error($boundEx);
                 }
@@ -2493,9 +2554,9 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
               return $error($boundEx);
             }
           };try {
-            return Promise.resolve(getVideos(start.unix(), end.unix(), page)).then(function ($await_13) {
+            return Promise.resolve(getVideos(start.unix(), end.unix(), page)).then(function ($await_14) {
               try {
-                res = $await_13;
+                res = $await_14;
                 return $Try_1_Post();
               } catch ($boundEx) {
                 return $Try_1_Catch($boundEx);
@@ -2507,6 +2568,35 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
         });
       });
       return $return();
+    });
+  };
+
+  this.getVideoInfo = function (videoIds) {
+    return new Promise(function ($return, $error) {
+      var res, data, videos;
+      return Promise.resolve(getVideoInfo(videoIds.join(','))).then(function ($await_15) {
+        try {
+          res = $await_15;
+          return Promise.resolve(res.json()).then(function ($await_16) {
+            try {
+              data = $await_16;
+              if (res.ok) {
+                videos = {};
+                data.items.map(function (x) {
+                  var video = _this3.state.videos[_this3.state.youtubeIDToObjectID[x.id]];
+                  videos[video.objectID] = Feed__extends({}, video, { contentDetails: x.contentDetails });
+                });
+                _this3.setState({ videos: Feed__extends({}, _this3.state.videos, videos) });
+              }
+              return $return();
+            } catch ($boundEx) {
+              return $error($boundEx);
+            }
+          }, $error);
+        } catch ($boundEx) {
+          return $error($boundEx);
+        }
+      }, $error);
     });
   };
 }, Feed__temp);

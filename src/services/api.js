@@ -8,9 +8,7 @@ export async function getVideos(start, end, page) {
     timeWindow = `&numericFilters=created_at_i>${start},created_at_i<${end}`
   }
   const url = `${ALGOLIA_URL}?query=${query}&restrictSearchableAttributes=url${timeWindow}&hitsPerPage=10&page=${page}`
-  console.log('url', url)
-  let res = await fetch(url)
-  return res
+  return fetch(url)
 }
 
 export async function getVideoInfo(id) {

@@ -33,6 +33,9 @@ export default class Header extends Component {
             <Link href='/month'>Month</Link>
           </div>
           <div className={style.headerLink}>
+            <Link href='/alltime'>All Time</Link>
+          </div>
+          <div className={style.headerLink}>
             <Link onClick={this.onRandom} href={'#'}>
               I'm feeling lucky
             </Link>

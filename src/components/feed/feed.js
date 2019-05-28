@@ -151,6 +151,8 @@ export default class Feed extends Component {
       await this.fortnight()
     } else if (this.props.path === '/month') {
       await this.month()
+    } else if (this.props.path === '/alltime') {
+      await this.allTime()
     } else if (this.props.path === '/random') {
       await this.randomFortnight(parseFloat(this.props.matches.r))
     } else {
@@ -163,6 +165,14 @@ export default class Feed extends Component {
     return this.doLoadPage(
       day(endOfDay).subtract(1, 'week'),
       day(endOfDay),
+      this.state.page
+    )
+  }
+
+  async allTime() {
+    return this.doLoadPage(
+      undefined,
+      undefined,
       this.state.page
     )
   }
@@ -199,6 +209,10 @@ export default class Feed extends Component {
   }
 
   doLoadPage = async (start, end, page) => {
+    const nullDay = { format: () => '', unix: () => undefined }
+    if (!start) start = nullDay
+    if (!end) end = nullDay
+
     let newState = {
       loading: 'Fetching hacker news feed',
       start: start.format('DD MMM YYYY'),
