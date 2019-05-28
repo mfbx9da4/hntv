@@ -9,11 +9,20 @@ export default class Item extends Component {
   static defaultProps = {
     onError: () => {},
     onReady: () => {},
+    onStateChange: () => {},
   }
 
   constructor() {
     super()
-    this.state = { showPlayer: false, imageIndex: 0 }
+    this.state = {
+      showPlayer: false,
+      imageIndex: 0,
+      thumbnailLoadedSuccessfully: false,
+    }
+  }
+
+  onImageLoad = () => {
+    this.setState({ thumbnailLoadedSuccessfully: true })
   }
 
   componentDidMount() {
@@ -36,23 +45,28 @@ export default class Item extends Component {
             background: '#333',
           }}
         >
-          {this.state.showPlayer ? (
+          {this.state.showPlayer && this.state.thumbnailLoadedSuccessfully ? (
             <Youtube
               id={`player${item.objectID}`}
               className={style.iframe}
               videoId={item.youtubeId}
               onReady={this.props.onReady}
+              onStateChange={this.props.onStateChange}
               onError={this.props.onError}
               playerVars={{}}
             />
           ) : (
             <div
               className={style.iframe}
+              style={{
+                display: this.state.showPlayer ? 'none' : 'inline-flex',
+              }}
               onClick={() => this.setState({ showPlayer: true })}
             >
               <YoutubeThumbnail
                 youtubeId={item.youtubeId}
                 index={0}
+                onLoad={this.onImageLoad}
                 onError={this.onImageError}
                 style={{ objectFit: 'cover', width: '100%' }}
               />

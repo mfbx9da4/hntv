@@ -75,6 +75,14 @@ export default class Feed extends Component {
     }
   }
 
+  onStateChange = (e) => {
+    const PLAYING = 1
+    if (e.data === PLAYING) {
+      if (this.currentPlayer.a !== e.target.a) this.currentPlayer.pauseVideo()
+      this.currentPlayer = e.target
+    }
+  }
+
   onReady = (index, id) => (e) => {
     this.currentPlayer.pauseVideo()
     this.currentPlayer = e.target.playVideo()
@@ -83,9 +91,7 @@ export default class Feed extends Component {
 
   onError = (index, id) => (e) => {
     const brokenVideos = { ...this.state.brokenVideos, [id]: true }
-    const videoOrder = this.state.videoOrder.filter(
-      (x) => !(x.objectID in brokenVideos)
-    )
+    const videoOrder = this.state.videoOrder.filter((x) => !(x in brokenVideos))
     this.setState({ brokenVideos, videoOrder })
   }
 
@@ -248,11 +254,12 @@ export default class Feed extends Component {
         <div className={style.searchContainer}>
           {this.state.videoOrder.map((objectID, i) => {
             const x = this.state.videos[objectID]
-            return x.objectID in this.state.brokenVideos ? null : (
+            return (
               <div key={x.objectID} style={{ marginBottom: '40px' }}>
                 <Item
                   showPlayer={i === 0}
                   item={x}
+                  onStateChange={this.onStateChange}
                   onError={this.onError(i, x.objectID)}
                   onReady={this.onReady(i, x.objectID)}
                 />
