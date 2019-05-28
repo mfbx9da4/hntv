@@ -29,7 +29,22 @@ export default class Item extends Component {
     if (this.props.showPlayer) this.setState({ showPlayer: true })
   }
 
+  componentWillReceiveProps(props) {
+    if (
+      props.showPlayer !== this.props.showPlayer &&
+      props.showPlayer !== this.state.showPlayer
+    ) {
+      this.setState({ showPlayer: props.showPlayer })
+    }
+  }
+
   onImageError = (e) => this.props.onError()
+
+  formatDuration = (duration) => {
+    if (!duration) return ''
+    let out = duration.toString()
+    return out.replace('PT', '').toLowerCase()
+  }
 
   render({ item }) {
     return (
@@ -76,6 +91,9 @@ export default class Item extends Component {
         <div>
           <div>{item.points} points</div>
           <div>{item.title}</div>
+          {item.contentDetails && (
+            <div>{this.formatDuration(item.contentDetails.duration)}</div>
+          )}
           <a target='_blank' href={item.url}>
             Youtube
           </a>{' '}

@@ -1,10 +1,40 @@
 import { h, Component } from 'preact'
-import { getVideos } from '../../services/api'
+import { getVideos, getVideoInfo } from '../../services/api'
 import Loader from '../Loader'
 import Info from '../Info'
 import style from './style'
 import day from 'dayjs'
 import Item from '../item'
+
+// Straight from SO 😭
+function getUrlQueryParameters(url) {
+  var question = url.indexOf("?");
+  var hash = url.indexOf("#");
+  if(hash==-1 && question==-1) return {};
+  if(hash==-1) hash = url.length;
+  var query = question==-1 || hash==question+1 ? url.substring(hash) :
+  url.substring(question+1,hash);
+  var result = {};
+  query.split("&").forEach(function(part) {
+    if(!part) return;
+    part = part.split("+").join(" "); // replace every + with space, regexp-free version
+    var eq = part.indexOf("=");
+    var key = eq>-1 ? part.substr(0,eq) : part;
+    var val = eq>-1 ? decodeURIComponent(part.substr(eq+1)) : "";
+    var from = key.indexOf("[");
+    if(from==-1) result[decodeURIComponent(key)] = val;
+    else {
+      var to = key.indexOf("]",from);
+      var index = decodeURIComponent(key.substring(from+1,to));
+      key = decodeURIComponent(key.substring(0,from));
+      if(!result[key]) result[key] = [];
+      if(!index) result[key].push(val);
+      else result[key][index] = val;
+    }
+  });
+  return result;
+}
+
 
 function sumoEmail() {
   if (window.location.href.indexOf('localhost') > -1) return
@@ -42,7 +72,7 @@ export default class Feed extends Component {
       error: { message: null, details: null },
       videos,
       brokenVideos: {},
-      youtubeIdSet: {},
+      youtubeIDToObjectID: {},
       imageIndex: 0,
     }
     this.currentPlayer = { pauseVideo: () => {} }
@@ -100,7 +130,7 @@ export default class Feed extends Component {
     this.setState(
       {
         page: 0,
-        youtubeIdSet: {},
+        youtubeIDToObjectID: {},
         videoOrder: [],
         lastVideoContainerRef: null,
       },
@@ -204,18 +234,18 @@ export default class Feed extends Component {
       }
 
       const _videoOrder = []
-      const youtubeIdSet = {}
+      const youtubeIDToObjectID = {}
       const videos = {}
       for (let item of data.hits) {
-        let youtubeId = item.url.split('v=')[1].split('&')[0]
+        let youtubeId = getUrlQueryParameters(item.url).v
         item.youtubeId = youtubeId
         if (
-          !(youtubeId in this.state.youtubeIdSet) &&
-          !(youtubeId in youtubeIdSet)
+          !(youtubeId in this.state.youtubeIDToObjectID) &&
+          !(youtubeId in youtubeIDToObjectID)
         ) {
           _videoOrder.push(item.objectID)
           videos[item.objectID] = item
-          youtubeIdSet[youtubeId] = true
+          youtubeIDToObjectID[youtubeId] = item.objectID
         }
       }
 
@@ -226,12 +256,26 @@ export default class Feed extends Component {
           loading: null,
           videoOrder,
           videos: { ...this.state.videos, ...videos },
-          youtubeIdSet: { ...this.state.youtubeIdSet, ...youtubeIdSet },
+          youtubeIDToObjectID: { ...this.state.youtubeIDToObjectID, ...youtubeIDToObjectID },
           reachedEndOfPages: !data.hits.length,
         },
         this.onPageLoaded
       )
+      await this.getVideoInfo(Object.keys(youtubeIDToObjectID))
     })
+  }
+
+  getVideoInfo = async (videoIds) => {
+    let res = await getVideoInfo(videoIds.join(','))
+    let data = await res.json()
+    if (res.ok) {
+      let videos = {}
+      data.items.map(x => {
+        const video = this.state.videos[this.state.youtubeIDToObjectID[x.id]]
+        videos[video.objectID] = { ...video, contentDetails: x.contentDetails }
+      })
+      this.setState({ videos: { ...this.state.videos, ...videos } })
+    }
   }
 
   render() {
