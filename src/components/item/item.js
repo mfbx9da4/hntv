@@ -22,7 +22,6 @@ export default class Item extends Component {
   }
 
   onImageLoad = () => {
-    console.log('image load')
     this.setState({ thumbnailLoadedSuccessfully: true })
   }
 
@@ -78,7 +77,6 @@ export default class Item extends Component {
                 display: this.state.showPlayer ? 'none' : 'inline-flex',
               }}
               onClick={() => {
-                console.log('show')
                 this.setState({ showPlayer: true })
               }}
             >
@@ -101,7 +99,6 @@ export default class Item extends Component {
           <a target='_blank' href={item.url}>
             Youtube{' '}
           </a>{' '}
-          {this.state.showPlayer + ' ' + this.state.thumbnailLoadedSuccessfully}
           <a
             target='_blank'
             href={`https://news.ycombinator.com/item?id=${item.objectID}`}
