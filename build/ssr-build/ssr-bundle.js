@@ -2303,7 +2303,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
                   }
                 }.bind(this), $error);
               } else {
-                return Promise.resolve(this.week()).then(function ($await_13) {
+                return Promise.resolve(this.randomFortnight()).then(function ($await_13) {
                   try {
                     return $If_6.call(this);
                   } catch ($boundEx) {

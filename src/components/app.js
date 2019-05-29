@@ -6,6 +6,7 @@ import Header from './header'
 
 // Code-splitting is automated for routes
 import Home from '../routes/home'
+import DetailsPage from '../routes/DetailsPage'
 
 export default class App extends Component {
   /** Gets fired when the route changes.
@@ -27,6 +28,7 @@ export default class App extends Component {
           <Home path='/month' />
           <Home path='/alltime' />
           <Home path='/random' />
+          <DetailsPage path='/item/:objectID' />
           <Home default />
         </Router>
       </div>

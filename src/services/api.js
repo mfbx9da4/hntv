@@ -1,5 +1,5 @@
 const GOOGLE_API_KEY = 'AIzaSyDf6h_YZh_ltaj8u8H4TceEqet68CyCz6k'
-const ALGOLIA_URL = 'https://hn.algolia.com/api/v1/search'
+const ALGOLIA_URL = 'https://hn.algolia.com/api/v1'
 
 export async function getVideos(start, end, page) {
   const query = 'youtube.com/watch'
@@ -7,7 +7,12 @@ export async function getVideos(start, end, page) {
   if (start && end) {
     timeWindow = `&numericFilters=created_at_i>${start},created_at_i<${end}`
   }
-  const url = `${ALGOLIA_URL}?query=${query}&restrictSearchableAttributes=url${timeWindow}&hitsPerPage=10&page=${page}`
+  const url = `${ALGOLIA_URL}/search?query=${query}&restrictSearchableAttributes=url${timeWindow}&hitsPerPage=10&page=${page}`
+  return fetch(url)
+}
+
+export async function getVideo(item) {
+  const url = `${ALGOLIA_URL}/items/${item}`
   return fetch(url)
 }
 

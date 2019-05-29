@@ -17,7 +17,18 @@ export default class YoutubeThumbnail extends Component {
   }
 
   componentDidMount() {
-    const { index } = this.props
+    this.loadImage()
+  }
+
+  componentDidUpdate(props) {
+    if (this.props.youtubeId !== props.youtubeId) {
+      this.loadImage()
+    }
+  }
+
+  loadImage = () => {
+    const { index, youtubeId } = this.props
+    if (!youtubeId) return
     const src = this.getSrc()
     const img = new Image(src)
     img.src = src
@@ -36,7 +47,8 @@ export default class YoutubeThumbnail extends Component {
   }
 
   render() {
-    const { onLoad, onError, ...rest } = this.props
+    const { onLoad, onError, youtubeId, ...rest } = this.props
+    if (!youtubeId) return null
     const src = this.getSrc()
     return <img src={src} {...rest} />
   }
