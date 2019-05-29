@@ -1324,6 +1324,12 @@ var Header__ref3 = Object(preact_min["h"])(
   'Month'
 );
 
+var _ref4 = Object(preact_min["h"])(
+  preact_router_es_Link,
+  { href: '/alltime' },
+  'All Time'
+);
+
 var Header_Header = function (_Component) {
   _inherits(Header, _Component);
 
@@ -1383,6 +1389,11 @@ var Header_Header = function (_Component) {
         Object(preact_min["h"])(
           'div',
           { className: header_style_default.a.headerLink },
+          _ref4
+        ),
+        Object(preact_min["h"])(
+          'div',
+          { className: header_style_default.a.headerLink },
           Object(preact_min["h"])(
             preact_router_es_Link,
             { onClick: this.onRandom, href: '#' },
@@ -1401,29 +1412,18 @@ var Header_Header = function (_Component) {
 
 /* harmony default export */ var header = (Header_Header);
 // CONCATENATED MODULE: ./services/api.js
-// TODO: separate local and production keys
 var GOOGLE_API_KEY = 'AIzaSyDf6h_YZh_ltaj8u8H4TceEqet68CyCz6k';
 var ALGOLIA_URL = 'https://hn.algolia.com/api/v1/search';
 
 function getVideos(start, end, page) {
   return new Promise(function ($return, $error) {
-    var query, timeWindow, url, res;
-
-    query = 'youtube.com/watch';
-    timeWindow = '';
+    var query = 'youtube.com/watch';
+    var timeWindow = '';
     if (start && end) {
       timeWindow = '&numericFilters=created_at_i>' + start + ',created_at_i<' + end;
     }
-    url = ALGOLIA_URL + '?query=' + query + '&restrictSearchableAttributes=url' + timeWindow + '&hitsPerPage=10&page=' + page;
-    console.log('url', url);
-    return Promise.resolve(fetch(url)).then(function ($await_1) {
-      try {
-        res = $await_1;
-        return $return(res);
-      } catch ($boundEx) {
-        return $error($boundEx);
-      }
-    }, $error);
+    var url = ALGOLIA_URL + '?query=' + query + '&restrictSearchableAttributes=url' + timeWindow + '&hitsPerPage=10&page=' + page;
+    return $return(fetch(url));
   });
 }
 
@@ -2232,7 +2232,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
   Feed.prototype.componentDidMount = function componentDidMount() {
     return new Promise(function ($return, $error) {
       window.addEventListener('scroll', this.onScroll);
-      return Promise.resolve(this.loadPage()).then(function ($await_6) {
+      return Promise.resolve(this.loadPage()).then(function ($await_7) {
         try {
           sumoEmail();
           return $return();
@@ -2259,7 +2259,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
   Feed.prototype.loadPage = function loadPage() {
     return new Promise(function ($return, $error) {
       if (this.props.path === '/week') {
-        return Promise.resolve(this.week()).then(function ($await_7) {
+        return Promise.resolve(this.week()).then(function ($await_8) {
           try {
             return $If_2.call(this);
           } catch ($boundEx) {
@@ -2268,7 +2268,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
         }.bind(this), $error);
       } else {
         if (this.props.path === '/fortnight') {
-          return Promise.resolve(this.fortnight()).then(function ($await_8) {
+          return Promise.resolve(this.fortnight()).then(function ($await_9) {
             try {
               return $If_3.call(this);
             } catch ($boundEx) {
@@ -2277,7 +2277,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
           }.bind(this), $error);
         } else {
           if (this.props.path === '/month') {
-            return Promise.resolve(this.month()).then(function ($await_9) {
+            return Promise.resolve(this.month()).then(function ($await_10) {
               try {
                 return $If_4.call(this);
               } catch ($boundEx) {
@@ -2285,8 +2285,8 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
               }
             }.bind(this), $error);
           } else {
-            if (this.props.path === '/random') {
-              return Promise.resolve(this.randomFortnight(parseFloat(this.props.matches.r))).then(function ($await_10) {
+            if (this.props.path === '/alltime') {
+              return Promise.resolve(this.allTime()).then(function ($await_11) {
                 try {
                   return $If_5.call(this);
                 } catch ($boundEx) {
@@ -2294,15 +2294,28 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
                 }
               }.bind(this), $error);
             } else {
-              return Promise.resolve(this.week()).then(function ($await_11) {
-                try {
-                  return $If_5.call(this);
-                } catch ($boundEx) {
-                  return $error($boundEx);
-                }
-              }.bind(this), $error);
-            }
+              if (this.props.path === '/random') {
+                return Promise.resolve(this.randomFortnight(parseFloat(this.props.matches.r))).then(function ($await_12) {
+                  try {
+                    return $If_6.call(this);
+                  } catch ($boundEx) {
+                    return $error($boundEx);
+                  }
+                }.bind(this), $error);
+              } else {
+                return Promise.resolve(this.week()).then(function ($await_13) {
+                  try {
+                    return $If_6.call(this);
+                  } catch ($boundEx) {
+                    return $error($boundEx);
+                  }
+                }.bind(this), $error);
+              }
 
+              function $If_6() {
+                return $If_5.call(this);
+              }
+            }
             function $If_5() {
               return $If_4.call(this);
             }
@@ -2325,6 +2338,12 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
     return new Promise(function ($return, $error) {
       var endOfDay = endOfToday();
       return $return(this.doLoadPage(dayjs_min_default()(endOfDay).subtract(1, 'week'), dayjs_min_default()(endOfDay), this.state.page));
+    }.bind(this));
+  };
+
+  Feed.prototype.allTime = function allTime() {
+    return new Promise(function ($return, $error) {
+      return $return(this.doLoadPage(undefined, undefined, this.state.page));
     }.bind(this));
   };
 
@@ -2465,6 +2484,14 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
 
   this.doLoadPage = function (start, end, page) {
     return new Promise(function ($return, $error) {
+      var nullDay = { format: function format() {
+          return '';
+        }, unix: function unix() {
+          return undefined;
+        } };
+      if (!start) start = nullDay;
+      if (!end) end = nullDay;
+
       var newState = {
         loading: 'Fetching hacker news feed',
         start: start.format('DD MMM YYYY'),
@@ -2481,10 +2508,10 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
           res = void 0;
           var $Try_1_Post = function () {
             try {
-              return Promise.resolve(res.json()).then(function ($await_12) {
+              return Promise.resolve(res.json()).then(function ($await_14) {
                 try {
 
-                  data = $await_12;
+                  data = $await_14;
                   if (!res.ok) {
                     return $return(_this3.setState({
                       loading: null,
@@ -2527,7 +2554,7 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
                     youtubeIDToObjectID: Feed__extends({}, _this3.state.youtubeIDToObjectID, youtubeIDToObjectID),
                     reachedEndOfPages: !data.hits.length
                   }, _this3.onPageLoaded);
-                  return Promise.resolve(_this3.getVideoInfo(Object.keys(youtubeIDToObjectID))).then(function ($await_13) {
+                  return Promise.resolve(_this3.getVideoInfo(Object.keys(youtubeIDToObjectID))).then(function ($await_15) {
                     try {
                       return $return();
                     } catch ($boundEx) {
@@ -2554,9 +2581,9 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
               return $error($boundEx);
             }
           };try {
-            return Promise.resolve(getVideos(start.unix(), end.unix(), page)).then(function ($await_14) {
+            return Promise.resolve(getVideos(start.unix(), end.unix(), page)).then(function ($await_16) {
               try {
-                res = $await_14;
+                res = $await_16;
                 return $Try_1_Post();
               } catch ($boundEx) {
                 return $Try_1_Catch($boundEx);
@@ -2574,12 +2601,12 @@ var Feed_Feed = (Feed__temp = Feed__class = function (_Component) {
   this.getVideoInfo = function (videoIds) {
     return new Promise(function ($return, $error) {
       var res, data, videos;
-      return Promise.resolve(getVideoInfo(videoIds.join(','))).then(function ($await_15) {
+      return Promise.resolve(getVideoInfo(videoIds.join(','))).then(function ($await_17) {
         try {
-          res = $await_15;
-          return Promise.resolve(res.json()).then(function ($await_16) {
+          res = $await_17;
+          return Promise.resolve(res.json()).then(function ($await_18) {
             try {
-              data = $await_16;
+              data = $await_18;
               if (res.ok) {
                 videos = {};
                 data.items.map(function (x) {
@@ -2650,13 +2677,15 @@ var app__ref2 = Object(preact_min["h"])(home, { path: '/' });
 
 var app__ref3 = Object(preact_min["h"])(home, { path: '/week' });
 
-var _ref4 = Object(preact_min["h"])(home, { path: '/fortnight' });
+var app__ref4 = Object(preact_min["h"])(home, { path: '/fortnight' });
 
 var _ref5 = Object(preact_min["h"])(home, { path: '/month' });
 
-var _ref6 = Object(preact_min["h"])(home, { path: '/random' });
+var _ref6 = Object(preact_min["h"])(home, { path: '/alltime' });
 
-var _ref7 = Object(preact_min["h"])(home, { 'default': true });
+var _ref7 = Object(preact_min["h"])(home, { path: '/random' });
+
+var _ref8 = Object(preact_min["h"])(home, { 'default': true });
 
 var app_App = function (_Component) {
   app__inherits(App, _Component);
@@ -2690,10 +2719,11 @@ var app_App = function (_Component) {
         { onChange: this.handleRoute },
         app__ref2,
         app__ref3,
-        _ref4,
+        app__ref4,
         _ref5,
         _ref6,
-        _ref7
+        _ref7,
+        _ref8
       )
     );
   };
