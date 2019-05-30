@@ -104,11 +104,25 @@ export default class Item extends Component {
             href={`https://news.ycombinator.com/item?id=${item.objectID}`}
           >
             HN
-          </a>
+          </a>{' '}
+          <a href={`/item/${item.objectID}`}>Share</a>
         </div>
         <TimeAgo date={item.created_at} />
         <div>{day(item.created_at).format('ddd DD MMM YYYY')}</div>
-        {/* <div>{JSON.stringify(x, null, 2)}</div> */}
+        {item.children &&
+          item.children.length &&
+          item.children.map((comment) => {
+            return (
+              <div style={{ padding: '10px', margin: '10px 0 0 10px' }}>
+                <div>{comment.author}</div>
+                <TimeAgo date={comment.created_at} />
+                <div
+                  style={{ background: '#222', padding: '10px' }}
+                  dangerouslySetInnerHTML={{ __html: comment.text }}
+                />
+              </div>
+            )
+          })}
       </div>
     )
   }

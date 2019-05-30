@@ -1413,7 +1413,7 @@ var Header_Header = function (_Component) {
 /* harmony default export */ var header = (Header_Header);
 // CONCATENATED MODULE: ./services/api.js
 var GOOGLE_API_KEY = 'AIzaSyDf6h_YZh_ltaj8u8H4TceEqet68CyCz6k';
-var ALGOLIA_URL = 'https://hn.algolia.com/api/v1/search';
+var ALGOLIA_URL = 'https://hn.algolia.com/api/v1';
 
 function getVideos(start, end, page) {
   return new Promise(function ($return, $error) {
@@ -1422,7 +1422,14 @@ function getVideos(start, end, page) {
     if (start && end) {
       timeWindow = '&numericFilters=created_at_i>' + start + ',created_at_i<' + end;
     }
-    var url = ALGOLIA_URL + '?query=' + query + '&restrictSearchableAttributes=url' + timeWindow + '&hitsPerPage=10&page=' + page;
+    var url = ALGOLIA_URL + '/search?query=' + query + '&restrictSearchableAttributes=url' + timeWindow + '&hitsPerPage=10&page=' + page;
+    return $return(fetch(url));
+  });
+}
+
+function getVideo(item) {
+  return new Promise(function ($return, $error) {
+    var url = ALGOLIA_URL + '/items/' + item;
     return $return(fetch(url));
   });
 }
@@ -1935,38 +1942,51 @@ var YoutubeThumbnail_YoutubeThumbnail = (YoutubeThumbnail__temp = YoutubeThumbna
       return 'https://img.youtube.com/vi/' + youtubeId + '/' + index + '.jpg';
     };
 
+    _this.loadImage = function () {
+      var _this$props2 = _this.props,
+          index = _this$props2.index,
+          youtubeId = _this$props2.youtubeId;
+
+      if (!youtubeId) return;
+      var src = _this.getSrc();
+      var img = new Image(src);
+      img.src = src;
+      img.onload = function (e) {
+        _this.setState({ loading: false });
+        // Hack to save round trip https://stackoverflow.com/a/21812607/1376627
+        if (img.naturalWidth === 120 && index === 0) {
+          return _this.props.onError(e);
+        }
+        _this.props.onLoad(e);
+      };
+      img.onerror = function (e) {
+        _this.props.onError(e);
+        _this.setState({ loading: false });
+      };
+    };
+
     _this.state = { loading: true };
     return _this;
   }
 
   YoutubeThumbnail.prototype.componentDidMount = function componentDidMount() {
-    var _this2 = this;
+    this.loadImage();
+  };
 
-    var index = this.props.index;
-
-    var src = this.getSrc();
-    var img = new Image(src);
-    img.src = src;
-    img.onload = function (e) {
-      _this2.setState({ loading: false });
-      // Hack to save round trip https://stackoverflow.com/a/21812607/1376627
-      if (img.naturalWidth === 120 && index === 0) {
-        return _this2.props.onError(e);
-      }
-      _this2.props.onLoad(e);
-    };
-    img.onerror = function (e) {
-      _this2.props.onError(e);
-      _this2.setState({ loading: false });
-    };
+  YoutubeThumbnail.prototype.componentDidUpdate = function componentDidUpdate(props) {
+    if (this.props.youtubeId !== props.youtubeId) {
+      this.loadImage();
+    }
   };
 
   YoutubeThumbnail.prototype.render = function render() {
     var _props = this.props,
         onLoad = _props.onLoad,
         onError = _props.onError,
-        rest = _objectWithoutProperties(_props, ['onLoad', 'onError']);
+        youtubeId = _props.youtubeId,
+        rest = _objectWithoutProperties(_props, ['onLoad', 'onError', 'youtubeId']);
 
+    if (!youtubeId) return null;
     var src = this.getSrc();
     return Object(preact_min["h"])('img', YoutubeThumbnail__extends({ src: src }, rest));
   };
@@ -2072,7 +2092,7 @@ var item_Item = (item__temp = item__class = function (_Component) {
               display: this.state.showPlayer ? 'none' : 'inline-flex'
             },
             onClick: function onClick() {
-              return _this2.setState({ showPlayer: true });
+              _this2.setState({ showPlayer: true });
             }
           },
           Object(preact_min["h"])(YoutubeThumbnail_YoutubeThumbnail, {
@@ -2106,7 +2126,8 @@ var item_Item = (item__temp = item__class = function (_Component) {
         Object(preact_min["h"])(
           'a',
           { target: '_blank', href: item.url },
-          'Youtube'
+          'Youtube',
+          ' '
         ),
         ' ',
         Object(preact_min["h"])(
@@ -2137,6 +2158,32 @@ var item_Item = (item__temp = item__class = function (_Component) {
 // CONCATENATED MODULE: ./components/item/index.js
 
 /* harmony default export */ var components_item = (item_Item);
+// CONCATENATED MODULE: ./utils/getUrlQueryParameters.js
+// Straight from SO 😭
+function getUrlQueryParameters(url) {
+  var question = url.indexOf('?');
+  var hash = url.indexOf('#');
+  if (hash == -1 && question == -1) return {};
+  if (hash == -1) hash = url.length;
+  var query = question == -1 || hash == question + 1 ? url.substring(hash) : url.substring(question + 1, hash);
+  var result = {};
+  query.split('&').forEach(function (part) {
+    if (!part) return;
+    part = part.split('+').join(' '); // replace every + with space, regexp-free version
+    var eq = part.indexOf('=');
+    var key = eq > -1 ? part.substr(0, eq) : part;
+    var val = eq > -1 ? decodeURIComponent(part.substr(eq + 1)) : '';
+    var from = key.indexOf('[');
+    if (from == -1) result[decodeURIComponent(key)] = val;else {
+      var to = key.indexOf(']', from);
+      var index = decodeURIComponent(key.substring(from + 1, to));
+      key = decodeURIComponent(key.substring(0, from));
+      if (!result[key]) result[key] = [];
+      if (!index) result[key].push(val);else result[key][index] = val;
+    }
+  });
+  return result;
+}
 // CONCATENATED MODULE: ./components/feed/Feed.js
 var Feed__extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -2158,31 +2205,6 @@ function Feed__inherits(subClass, superClass) { if (typeof superClass !== "funct
 
 
 
-// Straight from SO 😭
-function getUrlQueryParameters(url) {
-  var question = url.indexOf("?");
-  var hash = url.indexOf("#");
-  if (hash == -1 && question == -1) return {};
-  if (hash == -1) hash = url.length;
-  var query = question == -1 || hash == question + 1 ? url.substring(hash) : url.substring(question + 1, hash);
-  var result = {};
-  query.split("&").forEach(function (part) {
-    if (!part) return;
-    part = part.split("+").join(" "); // replace every + with space, regexp-free version
-    var eq = part.indexOf("=");
-    var key = eq > -1 ? part.substr(0, eq) : part;
-    var val = eq > -1 ? decodeURIComponent(part.substr(eq + 1)) : "";
-    var from = key.indexOf("[");
-    if (from == -1) result[decodeURIComponent(key)] = val;else {
-      var to = key.indexOf("]", from);
-      var index = decodeURIComponent(key.substring(from + 1, to));
-      key = decodeURIComponent(key.substring(0, from));
-      if (!result[key]) result[key] = [];
-      if (!index) result[key].push(val);else result[key][index] = val;
-    }
-  });
-  return result;
-}
 
 function sumoEmail() {
   if (window.location.href.indexOf('localhost') > -1) return;(function (s, u, m, o, j, v) {
@@ -2653,6 +2675,94 @@ var Home_Home = function Home(props) {
 // CONCATENATED MODULE: ./routes/home/index.js
 
 /* harmony default export */ var home = (home_Home);
+// CONCATENATED MODULE: ./components/DetailsPage.js
+
+
+function DetailsPage__classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function DetailsPage__possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function DetailsPage__inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+
+var DetailsPage_DetailsPage = function (_Component) {
+  DetailsPage__inherits(DetailsPage, _Component);
+
+  function DetailsPage() {
+    DetailsPage__classCallCheck(this, DetailsPage);
+
+    var _this = DetailsPage__possibleConstructorReturn(this, _Component.call(this));
+
+    _this.loadVideo = function (objectID) {
+      return new Promise(function ($return, $error) {
+        var res, data;
+        return Promise.resolve(getVideo(objectID)).then(function ($await_1) {
+          try {
+            res = $await_1;
+            return Promise.resolve(res.json()).then(function ($await_2) {
+              try {
+                data = $await_2;
+                data.objectID = data.id;
+                data.youtubeId = getUrlQueryParameters(data.url).v;
+                _this.setState({ item: data });
+                return $return();
+              } catch ($boundEx) {
+                return $error($boundEx);
+              }
+            }, $error);
+          } catch ($boundEx) {
+            return $error($boundEx);
+          }
+        }, $error);
+      });
+    };
+
+    _this.state = {
+      item: {}
+    };
+    _this.currentPlayer = { pauseVideo: function pauseVideo() {} };
+    return _this;
+  }
+
+  DetailsPage.prototype.componentDidMount = function componentDidMount() {
+    return new Promise(function ($return, $error) {
+      console.log(this.props.matches.objectID);
+      this.loadVideo(this.props.matches.objectID);
+      return $return();
+    }.bind(this));
+  };
+
+  DetailsPage.prototype.render = function render() {
+    return Object(preact_min["h"])(
+      'div',
+      null,
+      Object(preact_min["h"])(components_item, { item: this.state.item })
+    );
+  };
+
+  return DetailsPage;
+}(preact_min["Component"]);
+
+
+// CONCATENATED MODULE: ./routes/DetailsPage.js
+
+
+
+
+/* harmony default export */ var routes_DetailsPage = (function (props) {
+  return Object(preact_min["h"])(
+    'div',
+    null,
+    Object(preact_min["h"])(DetailsPage_DetailsPage, props)
+  );
+});
 // CONCATENATED MODULE: ./components/app.js
 
 
@@ -2671,6 +2781,7 @@ function app__inherits(subClass, superClass) { if (typeof superClass !== "functi
 // Code-splitting is automated for routes
 
 
+
 var app__ref = Object(preact_min["h"])(header, null);
 
 var app__ref2 = Object(preact_min["h"])(home, { path: '/' });
@@ -2685,7 +2796,9 @@ var _ref6 = Object(preact_min["h"])(home, { path: '/alltime' });
 
 var _ref7 = Object(preact_min["h"])(home, { path: '/random' });
 
-var _ref8 = Object(preact_min["h"])(home, { 'default': true });
+var _ref8 = Object(preact_min["h"])(routes_DetailsPage, { path: '/item/:objectID' });
+
+var _ref9 = Object(preact_min["h"])(home, { 'default': true });
 
 var app_App = function (_Component) {
   app__inherits(App, _Component);
@@ -2723,7 +2836,8 @@ var app_App = function (_Component) {
         _ref5,
         _ref6,
         _ref7,
-        _ref8
+        _ref8,
+        _ref9
       )
     );
   };
