@@ -43,7 +43,6 @@
     "webpack-bundle-tracker": "^0.4.2-beta"
   },
   "dependencies": {
-    "@pusher/chatkit-client": "^1.5.0",
     "dayjs": "^1.8.14",
     "fast-deep-equal": "^2.0.1",
     "preact": "^8.2.6",
