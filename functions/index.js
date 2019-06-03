@@ -20,11 +20,6 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
   res.redirect(303, snapshot.ref.toString())
 })
 
-const chatkit = new Chatkit.default({
-  instanceLocator: 'v1:us1:a9652974-4f20-4616-a573-a0a67caa94e9',
-  key:
-    '873848ca-b077-4984-ab5c-fd7833eddaa3:J1qa8piJlVbeCz4ffRD7sJ71D/H2xoJOD8JjzMZ25To=',
-})
 
 exports.identify = functions.https.onRequest(async (req, res) => {
   const authData = chatkit.authenticate({
