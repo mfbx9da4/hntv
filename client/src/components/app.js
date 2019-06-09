@@ -1,12 +1,12 @@
 import { h, Component } from 'preact'
 import { Router } from 'preact-router'
 
-// import './googleapi'
 import Header from './header'
 
 // Code-splitting is automated for routes
 import Home from '../routes/home'
 import DetailsPage from '../routes/DetailsPage'
+import LivePage from '../routes/LivePage'
 
 export default class App extends Component {
   /** Gets fired when the route changes.
@@ -28,6 +28,7 @@ export default class App extends Component {
           <Home path='/month' />
           <Home path='/alltime' />
           <Home path='/random' />
+          <LivePage path='/live' />
           <DetailsPage path='/item/:objectID' />
           <Home default />
         </Router>

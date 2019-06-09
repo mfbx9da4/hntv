@@ -6,27 +6,35 @@
   --red4: #6c160d;
   --red5: #3f0d08;
 
+  --blue4: #2a6e95;
+
   --green0: #f8fdfa;
-  --green1: #97e8b9;
-  --green2: #52d88b;
-  --green3: #2dca6f;
+  --green1: #52d88b;
+  --green2: #60d078;
+  --green3: #62d078;
   --green4: #27ae60;
   --green5: #1e8449;
   --green6: #145b32;
   --green7: #114d2a;
   --green8: #082313;
+  --green-text: var(--green3);
 
-  --grey0: #f6f6f6;
-  --grey1: #e5e5e5;
-  --grey2: #d4d4d4;
-  --grey3: #bbb;
-  --grey4: #999;
-  --grey5: #6e6e6e;
-  --grey6: #5d5d5d;
-  --grey7: #444;
-  --grey8: #222;
-  --grey9: #111;
-  --font-color-default: var(--grey7);
+  --grey00: #f6f6f6;
+  --grey10: #e5e5e5;
+  --grey20: #d4d4d4;
+  --grey30: #9199a8;
+  --grey40: #999;
+  --grey50: #6e6e6e;
+  --grey60: #383d47;
+  --grey70: #282d3a;
+  --grey80: #1c1f29;
+  --grey90: #1f2432;
+  --black: #000;
+  --font-color-default: var(--grey30);
+  --background-active: var(--grey60);
+  --button-border: var(--grey60);
+  --background: var(--grey80);
+  --header-background: var(--grey90);
 
   --space1: 2px;
   --space2: 6px;
@@ -37,19 +45,31 @@
   --space7: 24px;
   --space8: 32px;
   --space9: 40px;
+
+  --fs0: 11px;
+  --fs1: 12px;
+  --fs2: 13px;
+  --fs3: 14px;
+  --fs4: 15px;
+  --fs5: 16px;
+  --fs6: 17px;
+  --fs7: 18px;
+  --fs8: 21px;
+  --fs9: 24px;
 }
 
+@import url('https://rsms.me/inter/inter.css');
 html,
 body {
   height: 100%;
   width: 100%;
   padding: 0;
   margin: 0;
-  background: var(--grey9);
-  font-family: 'Helvetica Neue', arial, sans-serif;
+  background: var(--background);
+  font-family: 'Inter', 'Helvetica Neue', arial, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  color: white;
+  color: var(--font-color-default);
   -moz-osx-font-smoothing: grayscale;
 }
 

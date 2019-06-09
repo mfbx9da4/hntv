@@ -16,6 +16,11 @@ export async function getVideo(item) {
   return fetch(url)
 }
 
+export async function getLiveVideo() {
+  const url = `${ALGOLIA_URL}/items/${5453879}`
+  return fetch(url)
+}
+
 export async function getVideoInfo(id) {
   const base = `https://www.googleapis.com/youtube/v3/videos?id=${id}`
   const content = '&part=contentDetails'

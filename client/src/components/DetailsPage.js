@@ -15,15 +15,6 @@ export default class DetailsPage extends Component {
     this.currentPlayer = { pauseVideo: () => {} }
   }
 
-  checkFirebase() {
-    return new Promise(function _check(resolve) {
-      if (window.firebase && window.firebaseui) {
-        return resolve()
-      }
-      setTimeout(() => _check(resolve), 100)
-    })
-  }
-
   async componentDidMount() {
     console.log(this.props.matches.objectID)
     this.loadVideo(this.props.matches.objectID)

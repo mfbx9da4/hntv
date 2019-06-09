@@ -47,8 +47,9 @@ export default class Item extends Component {
   }
 
   render({ item }) {
+    if (!item) return null
     return (
-      <div>
+      <div style='background: var(--grey70); border: 1px solid var(--grey70)'>
         <div
           id={`video-container${item.objectID}`}
           className='video'
@@ -57,7 +58,7 @@ export default class Item extends Component {
             paddingBottom: '56.25%' /* 16:9 */,
             paddingTop: 25,
             height: 0,
-            background: '#333',
+            background: '#000',
           }}
         >
           {this.state.showPlayer && this.state.thumbnailLoadedSuccessfully ? (
@@ -68,7 +69,7 @@ export default class Item extends Component {
               onReady={this.props.onReady}
               onStateChange={this.props.onStateChange}
               onError={this.props.onError}
-              playerVars={{}}
+              playerVars={{ modestbranding: 1 }}
             />
           ) : (
             <div
@@ -90,7 +91,7 @@ export default class Item extends Component {
             </div>
           )}
         </div>
-        <div>
+        <div style={{ padding: '12px' }}>
           <div>{item.points} points</div>
           <div>{item.title}</div>
           {item.contentDetails && (
@@ -106,23 +107,23 @@ export default class Item extends Component {
             HN
           </a>{' '}
           <a href={`/item/${item.objectID}`}>Share</a>
+          <TimeAgo date={item.created_at} />
+          <div>{day(item.created_at).format('ddd DD MMM YYYY')}</div>
+          {item.children &&
+            item.children.length &&
+            item.children.map((comment) => {
+              return (
+                <div style={{ padding: '10px', margin: '10px 0 0 10px' }}>
+                  <div>{comment.author}</div>
+                  <TimeAgo date={comment.created_at} />
+                  <div
+                    style={{ background: '#222', padding: '10px' }}
+                    dangerouslySetInnerHTML={{ __html: comment.text }}
+                  />
+                </div>
+              )
+            })}
         </div>
-        <TimeAgo date={item.created_at} />
-        <div>{day(item.created_at).format('ddd DD MMM YYYY')}</div>
-        {item.children &&
-          item.children.length &&
-          item.children.map((comment) => {
-            return (
-              <div style={{ padding: '10px', margin: '10px 0 0 10px' }}>
-                <div>{comment.author}</div>
-                <TimeAgo date={comment.created_at} />
-                <div
-                  style={{ background: '#222', padding: '10px' }}
-                  dangerouslySetInnerHTML={{ __html: comment.text }}
-                />
-              </div>
-            )
-          })}
       </div>
     )
   }

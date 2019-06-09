@@ -1,0 +1,22 @@
+.Live {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  .playerContainer {
+    width: 100%;
+  }
+  .chatContainer {
+    padding: 12px;
+    border: 1px solid white;
+    border-radius: 3px;
+    margin-top: 12px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .chatContainer {
+    margin-left: 22px;
+    margin-right: 22px;
+  }
+}

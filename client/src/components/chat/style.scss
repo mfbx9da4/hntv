@@ -1,0 +1,67 @@
+.ChatMessage {
+  display: flex;
+  flex-direction: row;
+  margin-top: 12px;
+}
+
+.avatarContainer {
+  height: 40px;
+  width: 40px;
+  position: relative;
+  margin-left: 0px;
+  margin-right: 12px;
+
+  .avatar {
+    position: absolute;
+    height: 100%;
+    border-radius: 5px;
+  }
+}
+
+.metaContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  .meta {
+    flex-direction: row;
+    display: flex;
+    .authorName {
+      color: white;
+      margin-right: 12px;
+    }
+
+    .date {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      margin-top: auto;
+    }
+  }
+  .message {
+    white-space: pre;
+  }
+}
+
+.inputArea {
+  margin-top: 22px;
+  margin-left: 52px;
+  min-width: 200px;
+  font-size: 16px;
+  padding: 6px;
+  height: 32px;
+  width: 100%;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.chatMessagesContainer {
+  max-height: 400px;
+  overflow-y: scroll;
+}

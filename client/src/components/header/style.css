@@ -3,37 +3,72 @@
   left: 0;
   top: 0;
   width: 100%;
-  height: 56px;
+  height: 70px;
   padding: 0;
-  background: white;
+  background: var(--header-background);
   z-index: 50;
   display: flex;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .header h1 {
   margin: 0;
-  padding: 0 15px;
   font-size: 24px;
-  line-height: 56px;
-  font-weight: 400;
-  color: var(--grey7);
+  font-weight: 800;
+}
+
+h1 a {
+  padding: 12px;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+}
+
+.header a:visited {
+  color: white;
+  text-decoration: none;
 }
 
 @media only screen and (max-width: 523px) {
   .header {
-    padding-left: 12px;
+    /* padding-left: 12px; */
   }
   .header h1 {
-    display: none;
+    /* display: none; */
   }
 }
 
 .linksContainer {
   display: flex;
   flex-direction: row;
-  line-height: 56px;
 }
 
+.headerLinkContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 6px;
+}
 .headerLink {
-  padding-right: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  border: 3px solid var(--button-border);
+  border-radius: 5px;
+}
+
+.headerLink a {
+  display: block;
+  padding: 9px 26px;
+}
+
+.headerLink a.active {
+  background: var(--background-active);
 }

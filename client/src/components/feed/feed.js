@@ -7,7 +7,6 @@ import day from 'dayjs'
 import Item from '../item'
 import getUrlQueryParameters from '../../utils/getUrlQueryParameters'
 
-
 function sumoEmail() {
   if (window.location.href.indexOf('localhost') > -1) return
   ;(function(s, u, m, o, j, v) {
@@ -52,8 +51,8 @@ export default class Feed extends Component {
 
   async componentDidMount() {
     window.addEventListener('scroll', this.onScroll)
-    await this.loadPage()
-    sumoEmail()
+    // await this.loadPage()
+    // sumoEmail()
   }
 
   componentWillUnmount() {
@@ -126,6 +125,7 @@ export default class Feed extends Component {
     } else if (this.props.path === '/alltime') {
       await this.allTime()
     } else if (this.props.path === '/random') {
+      // TODO: best not to use a random number as date period will change over time
       await this.randomFortnight(parseFloat(this.props.matches.r))
     } else {
       await this.randomFortnight()
@@ -142,11 +142,7 @@ export default class Feed extends Component {
   }
 
   async allTime() {
-    return this.doLoadPage(
-      undefined,
-      undefined,
-      this.state.page
-    )
+    return this.doLoadPage(undefined, undefined, this.state.page)
   }
 
   async fortnight() {
@@ -242,7 +238,10 @@ export default class Feed extends Component {
           loading: null,
           videoOrder,
           videos: { ...this.state.videos, ...videos },
-          youtubeIDToObjectID: { ...this.state.youtubeIDToObjectID, ...youtubeIDToObjectID },
+          youtubeIDToObjectID: {
+            ...this.state.youtubeIDToObjectID,
+            ...youtubeIDToObjectID,
+          },
           reachedEndOfPages: !data.hits.length,
         },
         this.onPageLoaded
@@ -256,7 +255,7 @@ export default class Feed extends Component {
     let data = await res.json()
     if (res.ok) {
       let videos = {}
-      data.items.map(x => {
+      data.items.map((x) => {
         const video = this.state.videos[this.state.youtubeIDToObjectID[x.id]]
         videos[video.objectID] = { ...video, contentDetails: x.contentDetails }
       })
@@ -276,10 +275,19 @@ export default class Feed extends Component {
           {!this.state.videoOrder.length && !this.state.loading && (
             <Info message={'No Videos for this period'} />
           )}
-          <div style='text-align: center; padding-top: 10px;'>
-            From {this.state.start && this.state.start} to{' '}
-            {this.state.end && this.state.end}
-          </div>
+          {this.state.start && this.state.end && (
+            <div style='text-align: center; padding-top: 10px;'>
+              <span style='font-size: 18px; font-weight: 600; color: white;'>
+                {this.state.start}
+              </span>
+              <span style='font-size: 14px; margin: 0 15px; font-weight: bold;'>
+                TO
+              </span>
+              <span style='font-size: 18px; font-weight: 600; color: white;'>
+                {this.state.end}
+              </span>
+            </div>
+          )}
         </div>
         <div className={style.searchContainer}>
           {this.state.videoOrder.map((objectID, i) => {
