@@ -7,3 +7,35 @@
   display: flex;
   justify-content: center;
 }
+
+.playerInfoContainer {
+  display: flex;
+  flex-direction: row;
+  padding: 16px;
+  .points {
+    width: 100px;
+  }
+
+  .titleContainer {
+    flex: 1;
+    .title {
+      color: white;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .titleAside {
+      display: flex;
+      justify-content: space-between;
+      .videoDetails {
+        display: flex;
+      }
+      .videoDetails div {
+        display: flex;
+        margin-right: 16px;
+      }
+      .link {
+        margin-left: 16px;
+      }
+    }
+  }
+}

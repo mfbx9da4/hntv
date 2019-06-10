@@ -17,7 +17,9 @@ export async function getVideo(item) {
 }
 
 export async function getLiveVideo() {
-  const url = `${ALGOLIA_URL}/items/${5453879}`
+  // const url = `${ALGOLIA_URL}/items/${5453879}`
+  // return fetch(url)
+  const url = 'https://us-central1-hacker-news-tv.cloudfunctions.net/live'
   return fetch(url)
 }
 

@@ -42,8 +42,6 @@ export default class Chat extends Component {
 
   async componentDidMount() {
     await loadFirebase()
-    this.messagesEnd.scrollIntoView()
-    console.log('finish')
     this.chat = new ChatSubscription('chats/live', this.onMessage)
   }
 
@@ -60,7 +58,6 @@ export default class Chat extends Component {
   }
 
   onKeyPress = (event) => {
-    console.log('event.key', event)
     if (event.key === 'Enter' && !event.shiftKey) this.writeMessage(event)
   }
 

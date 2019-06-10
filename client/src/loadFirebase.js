@@ -1,23 +1,24 @@
 import dayjs from 'dayjs'
+import loadjs from 'loadjs'
 
 let firebaseWasInjected = false
+let firebaseWasInitialized = false
 
 function injectFirebase() {
-  console.log('inject')
+  if (firebaseWasInjected) return
   firebaseWasInjected = true
-  function load(o, j, v) {
-    j = document.createElement('script')
-    v = document.getElementsByTagName('script')[0]
-    j.async = 1
-    j.src = o
-    v.parentNode.insertBefore(j, v)
-  }
-  load('//www.gstatic.com/firebasejs/6.1.0/firebase-app.js')
-  // load('//cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js')
-  // <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-  load('//www.gstatic.com/firebasejs/6.1.0/firebase-auth.js')
-  load('//www.gstatic.com/firebasejs/6.1.0/firebase-database.js')
-  load('//www.gstatic.com/firebasejs/6.1.0/firebase-firestore.js')
+
+  loadjs(
+    [
+      '//www.gstatic.com/firebasejs/6.1.0/firebase-app.js',
+      '//www.gstatic.com/firebasejs/6.1.0/firebase-auth.js',
+      '//www.gstatic.com/firebasejs/6.1.0/firebase-database.js',
+    ],
+    {
+      success: function() {},
+      async: false,
+    }
+  )
 }
 
 function firebaseIsDefined() {
@@ -27,7 +28,6 @@ function firebaseIsDefined() {
 function waitForFirebase() {
   return new Promise(function _check(resolve) {
     if (firebaseIsDefined()) {
-      console.log('found')
       return resolve()
     }
     setTimeout(() => _check(resolve), 100)
@@ -35,6 +35,8 @@ function waitForFirebase() {
 }
 
 function initFirebase() {
+  if (firebaseWasInitialized) return
+  firebaseWasInitialized = true
   // Your web app's Firebase configuration
   var firebaseConfig = {
     apiKey: 'AIzaSyD_s-VDZiZ-TUCYWvo5aNZr31f09UwaaIU',
@@ -47,7 +49,6 @@ function initFirebase() {
   }
   // Initialize Firebase
   window.firebase.initializeApp(firebaseConfig)
-  console.log('loaded')
 }
 
 export async function signin() {
@@ -61,10 +62,8 @@ export async function signin() {
       // The signed-in user info.
       var user = result.user
       // ...
-      console.log('result', result)
     })
     .catch(function(error) {
-      console.log('error', error)
       // Handle Errors here.
       var errorCode = error.code
       var errorMessage = error.message
@@ -82,12 +81,6 @@ export class ChatSubscription {
     this.ref = window.firebase.database().ref(chatName)
     this.readRef = this.ref.orderByChild('timestamp').limitToLast(100)
     this.readRef.on('child_added', function(data) {
-      console.log(
-        'child_added',
-        data.val().message,
-        dayjs(data.val().timestamp).toString(),
-        data.val().authorName
-      )
       onMessage(data.val())
     })
   }
@@ -104,7 +97,6 @@ export class ChatSubscription {
       authorUid,
       timestamp: window.firebase.database.ServerValue.TIMESTAMP,
     }
-    console.log('row', row)
     const writeRef = this.ref.push()
     writeRef.set(row)
   }
@@ -133,10 +125,8 @@ export async function serverTime() {
 }
 
 export default async function main() {
-  if (firebaseWasInjected || firebaseIsDefined()) return
-  console.log('notdefined')
+  if (firebaseIsDefined()) return
   injectFirebase()
   await waitForFirebase()
   initFirebase()
-  console.log('return')
 }

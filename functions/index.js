@@ -132,6 +132,16 @@ async function getGoodVideo() {
 }
 
 exports.live = functions.https.onRequest(async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+
+  if (req.method === 'OPTIONS') {
+    // Send response to OPTIONS requests
+    res.set('Access-Control-Allow-Methods', 'GET')
+    res.set('Access-Control-Allow-Headers', 'Content-Type')
+    res.set('Access-Control-Max-Age', '3600')
+    return res.status(204).send('')
+  }
+
   let item = await getCurrentVideo()
   if (!item) {
     item = await getGoodVideo()

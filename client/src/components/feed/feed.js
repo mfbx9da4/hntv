@@ -51,8 +51,8 @@ export default class Feed extends Component {
 
   async componentDidMount() {
     window.addEventListener('scroll', this.onScroll)
-    // await this.loadPage()
-    // sumoEmail()
+    await this.loadPage()
+    sumoEmail()
   }
 
   componentWillUnmount() {

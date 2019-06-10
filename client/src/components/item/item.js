@@ -69,7 +69,7 @@ export default class Item extends Component {
               onReady={this.props.onReady}
               onStateChange={this.props.onStateChange}
               onError={this.props.onError}
-              playerVars={{ modestbranding: 1 }}
+              playerVars={{ modestbranding: 1, start: item.start }}
             />
           ) : (
             <div
@@ -91,24 +91,42 @@ export default class Item extends Component {
             </div>
           )}
         </div>
-        <div style={{ padding: '12px' }}>
-          <div>{item.points} points</div>
-          <div>{item.title}</div>
-          {item.contentDetails && (
-            <div>{this.formatDuration(item.contentDetails.duration)}</div>
-          )}
-          <a target='_blank' href={item.url}>
-            Youtube{' '}
-          </a>{' '}
-          <a
-            target='_blank'
-            href={`https://news.ycombinator.com/item?id=${item.objectID}`}
-          >
-            HN
-          </a>{' '}
-          <a href={`/item/${item.objectID}`}>Share</a>
-          <TimeAgo date={item.created_at} />
-          <div>{day(item.created_at).format('ddd DD MMM YYYY')}</div>
+        <div className={style.playerInfoContainer}>
+          <div className={style.points}>{item.points} points</div>
+          <div className={style.titleContainer}>
+            <div className={style.title}>{item.title}</div>
+
+            <div className={style.titleAside}>
+              <div className={style.videoDetails}>
+                {item.contentDetails && (
+                  <div className={style.duration}>
+                    {this.formatDuration(item.contentDetails.duration)}
+                  </div>
+                )}
+                <div>
+                  <TimeAgo date={item.created_at} />
+                </div>
+                <div>{day(item.created_at).format('DD MMM YYYY')}</div>
+              </div>
+
+              <div className={style.links}>
+                <a
+                  className={style.link}
+                  target='_blank'
+                  href={`https://news.ycombinator.com/item?id=${item.objectID}`}
+                >
+                  Original
+                </a>{' '}
+                <a
+                  className={style.link}
+                  target='_blank'
+                  href={`/item/${item.objectID}`}
+                >
+                  Share
+                </a>
+              </div>
+            </div>
+          </div>
           {item.children &&
             item.children.length &&
             item.children.map((comment) => {

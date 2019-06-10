@@ -4,7 +4,8 @@ import Chat from '../chat'
 import Item from '../item'
 import { getLiveVideo } from '../../services/api'
 import getUrlQueryParameters from '../../utils/getUrlQueryParameters'
-import { serverTime } from '../../loadFirebase'
+import loadFirebase, { serverTime } from '../../loadFirebase'
+import day from 'dayjs'
 
 export default class Live extends Component {
   constructor() {
@@ -13,14 +14,18 @@ export default class Live extends Component {
   }
 
   async componentDidMount() {
+    await loadFirebase()
     const res = await getLiveVideo()
-    let item = await res.json()
-    console.log('item', item)
-    item.objectID = item.id
-    item.youtubeId = getUrlQueryParameters(item.url).v
-    const now = await serverTime()
-    const offset = Math.max(now - item.startTime, 0)
-    this.setState({ item, offset })
+    console.log('res', res)
+    if (res.ok) {
+      let { item } = await res.json()
+      item.objectID = item.id
+      item.youtubeId = getUrlQueryParameters(item.url).v
+      const now = await serverTime()
+      item.start = Math.max(day(now).unix() - day(item.startTime).unix(), 0)
+      console.log('item', item)
+      this.setState({ item })
+    }
   }
 
   render() {

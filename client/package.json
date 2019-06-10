@@ -45,6 +45,7 @@
   "dependencies": {
     "dayjs": "^1.8.14",
     "fast-deep-equal": "^2.0.1",
+    "loadjs": "^3.6.1",
     "preact": "^8.2.6",
     "preact-compat": "^3.18.4",
     "preact-router": "^2.5.7",
