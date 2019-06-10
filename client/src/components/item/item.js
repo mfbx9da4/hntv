@@ -69,7 +69,11 @@ export default class Item extends Component {
               onReady={this.props.onReady}
               onStateChange={this.props.onStateChange}
               onError={this.props.onError}
-              playerVars={{ modestbranding: 1, start: item.start }}
+              playerVars={{
+                modestbranding: 1,
+                start: item.start,
+                ...this.props.playerVars,
+              }}
             />
           ) : (
             <div

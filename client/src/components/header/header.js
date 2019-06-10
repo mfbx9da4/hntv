@@ -19,7 +19,8 @@ export default class Header extends Component {
         <div className='brand'>
           <h1>
             <a href='#' onClick={this.reload}>
-              HNTV
+              <span style={{ color: '#ff6600' }}>HN</span>
+              TV
             </a>{' '}
           </h1>
         </div>
@@ -49,6 +50,11 @@ export default class Header extends Component {
               <Link onClick={this.onRandom} href={'#'}>
                 RANDOM WEEK
               </Link>
+            </div>
+          </div>
+          <div className={style.headerLinkContainer} z>
+            <div className={style.headerLink}>
+              <Link href='/live'>LIVE</Link>
             </div>
           </div>
           <div>
