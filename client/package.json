@@ -49,6 +49,7 @@
     "preact": "^8.2.6",
     "preact-compat": "^3.18.4",
     "preact-router": "^2.5.7",
+    "universal-analytics": "^0.4.20",
     "youtube-player": "^5.5.2"
   },
   "jest": {

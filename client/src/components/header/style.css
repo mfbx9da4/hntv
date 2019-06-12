@@ -13,8 +13,8 @@
 
 .brand {
   display: flex;
-  justify-content: center;
-  flex-direction: column;
+  align-items: center;
+  flex-direction: row;
 }
 
 .header h1 {

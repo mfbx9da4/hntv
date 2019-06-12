@@ -1,12 +1,14 @@
 import { h, Component } from 'preact'
 import { Router } from 'preact-router'
-
 import Header from './header'
+import loadGoogleAnalytics from '../loadGoogleAnalytics'
 
 // Code-splitting is automated for routes
 import Home from '../routes/home'
 import DetailsPage from '../routes/DetailsPage'
 import LivePage from '../routes/LivePage'
+
+loadGoogleAnalytics()
 
 export default class App extends Component {
   /** Gets fired when the route changes.

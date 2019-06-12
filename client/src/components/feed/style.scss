@@ -5,9 +5,6 @@
   position: relative;
   max-width: 780px;
   margin: 0 auto;
-  a {
-    color: hsl(45, 89, 69);
-  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -18,7 +15,7 @@
 
 .infoContainer {
   min-height: 68px;
-  margin-top: var(--space3);
+  margin-top: 32px;
   margin-right: auto;
   margin-left: auto;
   max-width: 400px;

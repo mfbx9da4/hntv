@@ -56,6 +56,9 @@
   --fs7: 18px;
   --fs8: 21px;
   --fs9: 24px;
+  --accentColor: hsl(24, 100%, 50%);
+  --accentColorLight1: hsl(24, 100%, 65%);
+  --accentColorLight2: hsl(24, 100%, 80%);
 }
 
 @import url('https://rsms.me/inter/inter.css');
@@ -75,6 +78,17 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+a {
+  color: var(--font-color-default);
+  text-decoration: none;
+  &:visited {
+    color: var(--grey30);
+  }
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 #app {

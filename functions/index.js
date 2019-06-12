@@ -93,11 +93,6 @@ async function getVideoInfo(id) {
   return res
 }
 
-function videoIsValid() {
-  // TODO: implement
-  return true
-}
-
 async function getRandomVideos() {
   let { start, end } = randomPeriod()
   let videos = await getVideos(start, end, 0)
@@ -105,28 +100,36 @@ async function getRandomVideos() {
 }
 
 async function getGoodVideo() {
+  const MINIMUM_SCORE = 25
   let item = null
+  let i = 0
   while (item === null) {
+    if (i++ > 100) throw new Error('TOO_MANY_ITERATIONS')
     console.log('getrndomvideo')
     let videos = await getRandomVideos()
-    videos = videos.filter((x) => x.points > 10)
+    videos = videos.filter((x) => x.points > MINIMUM_SCORE)
     console.log('videos', videos.length)
-    if (!videos.length > 0) continue
+    if (videos.length === 0) continue
+
+    // Map YT ID to item
     const map = {}
     videos.map((x) => (map[new URL(x.url).searchParams.get('v')] = x))
+
+    // Get YT info
     const videoInfo = await getVideoInfo(Object.keys(map).join(','))
     console.log('videoInfo', JSON.stringify(videoInfo.data.items.length))
-    videos = videoInfo.data.items.map((x) => ({
+
+    // Filter out invalid videos
+    const validVideos = videoInfo.data.items.map((x) => ({
       ...map[x.id],
-      duration: x.contentDetails.duration,
+      contentDetails: x.contentDetails,
     }))
-    while (videos.length > 0) {
-      const index = Math.floor(Math.random() * videos.length)
-      const video = videos.splice(index, 1)[0]
-      if (videoIsValid(video, videoInfo)) {
-        item = video
-      }
-    }
+    if (validVideos.length === 0) continue
+
+    // Choose random video
+    const index = Math.floor(Math.random() * validVideos.length)
+    const video = validVideos.splice(index, 1)[0]
+    item = video
   }
   return item
 }

@@ -30,9 +30,8 @@ export default class Live extends Component {
 
   onReady = (event) => {
     this.player = event.target
-    console.log('this.player', this.player)
-    this.player.seekTo(this.state.item.start)
     this.player.playVideo()
+    this.player.seekTo(this.state.item.start)
   }
 
   render() {
