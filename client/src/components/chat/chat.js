@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'
 import style from './style'
-import loadFirebase, { signin, ChatSubscription } from '../../loadFirebase'
+import loadFirebase, { ChatSubscription } from '../../loadFirebase'
 import day from 'dayjs'
 
 class ChatMessage extends Component {
@@ -30,10 +30,11 @@ class ChatMessage extends Component {
 export default class Chat extends Component {
   constructor() {
     super()
-    this.state = { messages: [], inputText: '' }
+    this.state = { messages: [], inputText: '', behavior: 'auto' }
   }
 
   onMessage = (message) => {
+    if (!this.smoothScrollActive) this.activateSmoothScroll()
     this.setState(
       { messages: [...this.state.messages, message] },
       this.scrollToBottom
@@ -43,6 +44,11 @@ export default class Chat extends Component {
   async componentDidMount() {
     await loadFirebase()
     this.chat = new ChatSubscription('chats/live', this.onMessage)
+  }
+
+  activateSmoothScroll = () => {
+    this.smoothScrollActive = true
+    setTimeout(() => this.setState({ behavior: 'smooth' }), 500)
   }
 
   componentWillUnmount() {
@@ -66,7 +72,9 @@ export default class Chat extends Component {
   }
 
   scrollToBottom = () => {
-    this.messagesEnd.scrollIntoView({ behavior: 'smooth' })
+    if (this.messagesEnd) {
+      this.messagesEnd.scrollIntoView({ behavior: this.state.behavior })
+    }
   }
 
   componentDidUpdate() {
@@ -76,7 +84,11 @@ export default class Chat extends Component {
   render() {
     return (
       <div className={style.Chat}>
-        <div className={style.chatMessagesContainer}>
+        {!this.state.messages.length && 'Loading chat ...'}
+        <div
+          className={style.chatMessagesContainer}
+          style={{ display: this.state.messages.length ? 'block' : 'none' }}
+        >
           {this.state.messages.map((x) => (
             <ChatMessage message={x} />
           ))}

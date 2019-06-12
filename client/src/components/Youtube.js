@@ -1,4 +1,4 @@
-import React from 'preact'
+import React, { h } from 'preact'
 import isEqual from 'fast-deep-equal'
 import youTubePlayer from 'youtube-player'
 
@@ -206,6 +206,7 @@ class YouTube extends React.Component {
       // preload the `videoId` video if one is already given
       videoId: this.props.videoId,
     }
+    console.log('playerOpts', playerOpts)
     this.internalPlayer = youTubePlayer(this.container, playerOpts)
     // attach event handlers
     this.internalPlayer.on('ready', this.onPlayerReady)

@@ -9,7 +9,6 @@ export default class Login extends Component {
       .auth()
       .onAuthStateChanged((user) => {
         if (user) {
-          console.log('user changed..', user)
           this.setState({
             user: {
               displayName: user.displayName,

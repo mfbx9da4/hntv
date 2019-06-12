@@ -6,26 +6,35 @@ import { getLiveVideo } from '../../services/api'
 import getUrlQueryParameters from '../../utils/getUrlQueryParameters'
 import loadFirebase, { serverTime } from '../../loadFirebase'
 import day from 'dayjs'
+import Loader from '../loader'
+import Info from '../info'
 
 export default class Live extends Component {
   constructor() {
     super()
-    this.state = {}
+    this.state = {
+      loading: false,
+      error: {},
+    }
   }
 
   async componentDidMount() {
     await loadFirebase()
+    this.setState({ loading: true })
     const res = await getLiveVideo()
-    console.log('res', res)
     if (res.ok) {
       let { item } = await res.json()
       item.objectID = item.id
       item.youtubeId = getUrlQueryParameters(item.url).v
-      const now = await serverTime()
-      item.start = Math.max(day(now).unix() - day(item.startTime).unix(), 0)
-      console.log('item', item)
+      item.start = this.calcStartOffset(item.startTime)
       this.setState({ item, showPlayer: true })
     }
+    this.setState({ loading: false })
+  }
+
+  calcStartOffset = async (startTime) => {
+    const now = await serverTime()
+    return Math.max(day(now).unix() - day(startTime).unix(), 0)
   }
 
   onReady = (event) => {
@@ -37,11 +46,18 @@ export default class Live extends Component {
   render() {
     return (
       <div className={style.Live}>
+        <div className={style.infoContainer}>
+          <Loader message={this.state.loading} />
+          <Info
+            message={this.state.error.message}
+            details={this.state.error.details}
+          />
+        </div>
         <div className={style.playerContainer}>
           <Item
             onReady={this.onReady}
             showPlayer={this.state.showPlayer}
-            playerVars={{ controls: 1, rel: 0, fs: 0 }}
+            playerVars={{ controls: 1, rel: 0, fs: 0, modestbranding: 1 }}
             item={this.state.item}
           />
         </div>
