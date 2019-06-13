@@ -1,7 +1,106 @@
-import { h, Component } from 'preact'
+import { h, Component, cloneElement } from 'preact'
 import style from './style'
 import { Link } from 'preact-router'
 import Login from '../login'
+
+class DropdownMenu extends Component {
+  constructor() {
+    super()
+    this.state = {
+      isOpen: false,
+    }
+  }
+
+  componentWillMount() {
+    document.addEventListener('mousedown', this.handleClick, false)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClick, false)
+  }
+
+  handleClick = (e) => {
+    if (this.containerRef.contains(e.target)) {
+      return
+    }
+    this.setState({ isOpen: false })
+  }
+
+  toggle = () => {
+    this.setState({ isOpen: !this.state.isOpen })
+  }
+
+  render() {
+    console.log('this.props.children', this.props.children)
+    let activeChildIndex = 0
+    for (let i = 0; i < this.props.children.length; i++) {
+      let child = this.props.children[i]
+      if (child.attributes && child.attributes.active) {
+        activeChildIndex = i
+        break
+      }
+    }
+    const activeChild = cloneElement(this.props.children[activeChildIndex], {
+      top: true,
+    })
+    console.log(activeChild)
+    return (
+      <div
+        class={style.DropDownMenuContainer}
+        ref={(ref) => (this.containerRef = ref)}
+      >
+        <div
+          style={{
+            background: activeChild.attributes.active
+              ? 'var(--background-active)'
+              : 'transparent',
+          }}
+          class={style.DropDownMenuTopContainer}
+          onClick={this.toggle}
+        >
+          {activeChild}
+        </div>
+        <div
+          ref={(ref) => (this.itemsRef = ref)}
+          onClick={() => {
+            console.log('this.called')
+          }}
+          class={style.DropdownMenuItemsContainer}
+          style={{ display: this.state.isOpen ? 'flex' : 'none' }}
+        >
+          {this.props.children}
+        </div>
+      </div>
+    )
+  }
+}
+
+class DropdownItem extends Component {
+  render() {
+    return (
+      <div
+        className={`${
+          this.props.top ? style.DropDownMenuTop : style.DropDownMenuItem
+        } ${this.props.active && 'active'}`}
+      >
+        {this.props.children}
+        {this.props.top && (
+          <div
+            style={{
+              padding: '0px 12px',
+              fontSize: '30px',
+              height: '12px',
+              marginTop: '-8px',
+              cursor: 'pointer',
+            }}
+          >
+            {'⌄'}
+          </div>
+        )}
+      </div>
+    )
+  }
+}
 
 export default class Header extends Component {
   reload = () => {
@@ -42,41 +141,49 @@ export default class Header extends Component {
           </div>
         </div>
         <div className={style.linksContainer}>
-          <div className={style.headerLinkContainer} z>
+          <DropdownMenu className={style.headerLinkContainer}>
+            <DropdownItem active={this.props.currentUrl === '/week'}>
+              <Link href={'/week'}>TOP THIS WEEK</Link>
+            </DropdownItem>
+            <DropdownItem active={this.props.currentUrl === '/fortnight'}>
+              <Link href={'/fortnight'}>TOP THIS FORTNIGHT</Link>
+            </DropdownItem>
+            <DropdownItem active={this.props.currentUrl === '/month'}>
+              <Link href={'/month'}>TOP THIS MONTH</Link>
+            </DropdownItem>
+            <DropdownItem active={this.props.currentUrl === '/alltime'}>
+              <Link href={'/alltime'}>ALL TIME</Link>
+            </DropdownItem>
+          </DropdownMenu>
+          <div className={style.headerLinkContainer}>
             <div className={style.headerLink}>
-              <Link href='/week'>WEEK</Link>
-            </div>
-          </div>
-          <div className={style.headerLinkContainer} z>
-            <div className={style.headerLink}>
-              <Link href='/fortnight'>FORTNIGHT</Link>
-            </div>
-          </div>
-          <div className={style.headerLinkContainer} z>
-            <div className={style.headerLink}>
-              <Link href='/month'>MONTH</Link>
-            </div>
-          </div>
-          <div className={style.headerLinkContainer} z>
-            <div className={style.headerLink}>
-              <Link href='/alltime'>ALL TIME</Link>
-            </div>
-          </div>
-          <div className={style.headerLinkContainer} z>
-            <div className={style.headerLink}>
-              <Link onClick={this.onRandom} href={'#'}>
+              <Link
+                onClick={this.onRandom}
+                href={'#'}
+                className={
+                  this.props.currentUrl &&
+                  this.props.currentUrl.indexOf('/random') > -1
+                    ? style.linkActive
+                    : ''
+                }
+              >
                 RANDOM WEEK
               </Link>
             </div>
           </div>
-          <div className={style.headerLinkContainer} z>
-            <div className={style.headerLink}>
-              <Link href='/live'>LIVE</Link>
+          <div className={style.headerLinkContainer}>
+            <div className={style.liveLink}>
+              <Link
+                className={
+                  this.props.currentUrl === '/live' ? style.liveLinkActive : ''
+                }
+                href='/live'
+              >
+                {'●'} LIVE
+              </Link>
             </div>
           </div>
-          <div>
-            <Login />
-          </div>
+          <Login />
         </div>
       </header>
     )

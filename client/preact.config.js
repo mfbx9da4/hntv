@@ -13,6 +13,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
  * @param {WebpackConfigHelpers} helpers - object with useful helpers when working with config.
  **/
 export default function(config, env, helpers) {
+  config.resolve.unsafeCache = false
   config.plugins.unshift(new Dotenv({ path: '../.env' }))
 
   // Check if isBuild

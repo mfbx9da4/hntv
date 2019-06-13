@@ -11,7 +11,11 @@ class ChatMessage extends Component {
         className={style.ChatMessage}
       >
         <div className={style.avatarContainer}>
-          <img className={style.avatar} src={message.authorAvatar} />
+          <img
+            className={style.avatar}
+            alt={message.authorName}
+            src={message.authorAvatar}
+          />
         </div>
         <div className={style.messageContainer}>
           <div className={style.meta}>

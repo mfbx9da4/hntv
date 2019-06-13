@@ -40,7 +40,9 @@ export default class Login extends Component {
     return (
       <div className={style.login}>
         {this.state.user ? (
-          <div onClick={this.onLogout}>{this.state.user.email} - Logout</div>
+          <div onClick={this.onLogout}>
+            {this.state.user.displayName} - Logout
+          </div>
         ) : (
           <div onClick={this.onSignin}>Login with Google</div>
         )}
