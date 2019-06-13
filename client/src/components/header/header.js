@@ -12,11 +12,15 @@ class DropdownMenu extends Component {
   }
 
   componentWillMount() {
-    document.addEventListener('mousedown', this.handleClick, false)
+    if (typeof window !== 'undefined') {
+      document.addEventListener('mousedown', this.handleClick, false)
+    }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClick, false)
+    if (typeof window !== 'undefined') {
+      document.removeEventListener('mousedown', this.handleClick, false)
+    }
   }
 
   handleClick = (e) => {
