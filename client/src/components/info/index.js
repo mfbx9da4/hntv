@@ -1,2 +1,2 @@
-import Info from './Info'
+import Info from './info'
 export default Info

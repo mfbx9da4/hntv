@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import { getVideos, getVideoInfo } from '../../services/api'
-import Loader from '../Loader'
-import Info from '../Info'
+import Loader from '../loader'
+import Info from '../info'
 import style from './style'
 import day from 'dayjs'
 import Item from '../item'
@@ -45,6 +45,7 @@ export default class Feed extends Component {
       brokenVideos: {},
       youtubeIDToObjectID: {},
       imageIndex: 0,
+      fetchRandomRetries: 0,
     }
     this.currentPlayer = { pauseVideo: () => {} }
   }
@@ -93,6 +94,19 @@ export default class Feed extends Component {
   onError = (index, id) => (e) => {
     const brokenVideos = { ...this.state.brokenVideos, [id]: true }
     const videoOrder = this.state.videoOrder.filter((x) => !(x in brokenVideos))
+    if (videoOrder.length === 0) {
+      if (this.state.fetchRandomRetries > 10) {
+        this.setState({
+          error: {
+            message: 'Too many retries',
+            details: 'Tried fetching random fortnight too many times ',
+          },
+        })
+      } else {
+        this.setState({ fetchRandomRetries: this.state.fetchRandomRetries + 1 })
+        return this.randomFortnight()
+      }
+    }
     this.setState({ brokenVideos, videoOrder })
   }
 
